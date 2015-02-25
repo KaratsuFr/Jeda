@@ -2,12 +2,12 @@
 
 /**
  * @ngdoc function
- * @name generationApp.controller:EditCtrl
+ * @name JedaApp.controller:EditCtrl
  * @description
  * # EditCtrl
- * Controller of the generationApp
+ * Controller of the JedaApp
  */
-angular.module('generationApp')
+angular.module('JedaApp')
   .controller('EditCtrl', function ($scope) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',

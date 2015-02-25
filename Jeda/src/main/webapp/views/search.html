@@ -1,1 +1,36 @@
 <p>This is the search view.</p>
+{{currBean}}
+
+<table
+	ng-table="tableParams"
+	class="table">
+
+	<thead>
+		<tr ng-repeat="fieldInfo in resource.lstFieldInfo">
+			<th
+				class="sortable"
+				ng-class="{
+                    'sort-asc': tableParams.isSortBy(fieldInfo.label, 'asc')
+                  }"
+				ng-click="tableParams.sorting({'name' : tableParams.isSortBy(fieldInfo.label, 'asc') ? 'desc' : 'asc'})"
+				rowspan="2">
+
+				<div>
+					{{fieldInfo.label}}
+				</div>
+			</th>			
+		</tr>
+
+	</thead>
+
+	<tbody>
+		<tr ng-repeat="values in $data">
+			
+			<td ng-repeat="fieldInfo in resource.lstFieldInfo track by $index"
+				data-title="fieldInfo.label" 
+				sortable="fieldInfo.label">{{values[$index].value}}</td>			
+
+		</tr>
+	</tbody>
+
+</table>
