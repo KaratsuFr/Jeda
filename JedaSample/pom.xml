@@ -5,6 +5,19 @@
 	<artifactId>JedaSample</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<description>Sample Jeda</description>
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.ippon.tlse</groupId>
+			<artifactId>JedaFkm</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
