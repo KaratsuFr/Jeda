@@ -37,8 +37,8 @@ public class UndertowContainer {
 		deploymentManager.deploy();
 
 		PathHandler path = Handlers.path(
-				resource(new FileResourceManager(new File("src/main/webapp"), 1024)).setDirectoryListingEnabled(true))
-				.addPrefixPath("/rest", deploymentManager.start());
+				resource(new FileResourceManager(new File("../Jeda/src/main/webapp"), 1024))
+				.setDirectoryListingEnabled(true)).addPrefixPath("/rest", deploymentManager.start());
 
 		// Undertow.builder() .addHttpListener(8080, "localhost") .setHandler(resource(new FileResourceManager(new File("/tmp/test"), 100))
 		// .setDirectoryListingEnabled(false) .setWelcomeFiles("other.html")) .build(); server.start();
