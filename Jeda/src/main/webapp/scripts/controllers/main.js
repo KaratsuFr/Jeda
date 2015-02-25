@@ -2,11 +2,17 @@
 
 /**
  * @ngdoc function
- * @name generationApp.controller:MainCtrl
- * @description # MainCtrl Controller of the generationApp
+ * @name JedaApp.controller:MainCtrl
+ * @description # MainCtrl Controller of the JedaApp
  */
-angular.module('generationApp').controller('MainCtrl', function($scope) {
+angular.module('JedaApp').controller('MainCtrl', function($scope,resolvedBaseDomainBean) {
   $scope.awesomeThings = ['HTML5 Boilerplate', 'AngularJS', 'Karma'];
 
-  $scope.listBean = ['TuBean', 'toto'];
+  $scope.listBean = resolvedBaseDomainBean.data;
+  
+  $scope.contextBean = [{"beanName":"","id":""}];
+  
+  $scope.listBean = function(beanName){
+    
+  }
 });

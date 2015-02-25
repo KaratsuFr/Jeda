@@ -2,14 +2,14 @@
 
 /**
  * @ngdoc overview
- * @name generationApp
+ * @name JedaApp
  * @description
- * # generationApp
+ * # JedaApp
  *
  * Main module of the application.
  */
 angular
-  .module('generationApp', [
+  .module('JedaApp', [
     'ngAnimate',
     'ngAria',
     'ngCookies',
@@ -23,6 +23,11 @@ angular
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
+        resolve: {          
+          resolvedBaseDomainBean: ['$http', function($http) {
+            return $http.get('rest/app');
+          }],
+        },
         controller: 'MainCtrl'
       })
       .when('/about', {
