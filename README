@@ -1,0 +1,6 @@
+JEDA is a Java / JavaScript Express Data Access
+
+the goal is to provide an all in one solution to CRUD + Search Data
+Data is fully and only define with Java Bean
+
+Extension point can be add to provide custom reprentation or functionnality
