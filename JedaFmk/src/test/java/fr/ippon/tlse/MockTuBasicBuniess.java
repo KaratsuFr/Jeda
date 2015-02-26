@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.dto.ResourceDto;
@@ -47,7 +48,11 @@ public class MockTuBasicBuniess implements IBusinessService {
 	public ResourceDto createOrUpdate(ResourceDto resource, Class<?> domainClass) {
 		List<TuBasicDomain> lstDomain = DtoMapper.SINGLETON.buildLstDomainFromResource(resource, TuBasicDomain.class);
 		for (TuBasicDomain tuBasicDomain : lstDomain) {
+			if (tuBasicDomain.getNum() == null) {
+				tuBasicDomain.setNum(mockPersistance.size());
+			}
 			mockPersistance.put("" + tuBasicDomain.getNum(), tuBasicDomain);
+
 		}
 		return resource;
 	}

@@ -15,6 +15,8 @@ public class ResourceDto {
 
 	private String					description;
 
+	private int						positionOfId	= -1;
+
 	@NotNull
 	private String					className;
 

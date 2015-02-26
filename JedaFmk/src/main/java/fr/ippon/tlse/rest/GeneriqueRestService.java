@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -27,6 +28,8 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.dto.ResourceDto;
+import fr.ippon.tlse.dto.exception.InvalidBeanException;
+import fr.ippon.tlse.dto.utils.DtoMapper;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -57,8 +60,6 @@ public class GeneriqueRestService {
 	@Path("/entity/{entity:.*}")
 	public Response getAnyEntity(@PathParam("entity") String anyEntity) {
 
-		MultivaluedMap<String, String> parameters = ApplicationUtils.SINGLETON.getQueryParam();
-
 		String hierachicalClassName = anyEntity.replace("/", ".");
 		Class<?> targetDomainClass = null;
 		try {
@@ -67,20 +68,32 @@ public class GeneriqueRestService {
 			return Response.status(Status.METHOD_NOT_ALLOWED)
 					.entity(String.format("{\"message\": \"No Domain bean match %s \"}", anyEntity)).build();
 		}
-		IBusinessService service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass
-				.getSimpleName());
 
 		ResourceDto result = null;
-
-		List<String> idParam = parameters.get(StandardUrlParameters.id.name());
-		if (idParam != null && idParam.size() == 1) {
-			result = service.readById(idParam.get(0), targetDomainClass);
+		MultivaluedMap<String, String> parameters = ApplicationUtils.SINGLETON.getQueryParam();
+		// Special case to build new resource from empty object to provide create view
+		if (parameters.containsKey(StandardUrlParameters.create.name())) {
+			try {
+				List<Object> listDmainOneItemEmpty = new ArrayList<>();
+				listDmainOneItemEmpty.add(targetDomainClass.newInstance());
+				result = DtoMapper.SINGLETON.buildResourceFromDomain(listDmainOneItemEmpty);
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new InvalidBeanException(targetDomainClass);
+			}
 		} else {
-			List<String> parentIdParam = parameters.get(StandardUrlParameters.parentId.name());
-			if (parentIdParam != null && parentIdParam.size() == 1) {
-				result = service.readAll(targetDomainClass, Optional.of(parentIdParam.get(0)));
+			List<String> idParam = parameters.get(StandardUrlParameters.id.name());
+			IBusinessService service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass
+					.getSimpleName());
+
+			if (idParam != null && idParam.size() == 1) {
+				result = service.readById(idParam.get(0), targetDomainClass);
 			} else {
-				result = service.readAll(targetDomainClass, Optional.empty());
+				List<String> parentIdParam = parameters.get(StandardUrlParameters.parentId.name());
+				if (parentIdParam != null && parentIdParam.size() == 1) {
+					result = service.readAll(targetDomainClass, Optional.of(parentIdParam.get(0)));
+				} else {
+					result = service.readAll(targetDomainClass, Optional.empty());
+				}
 			}
 		}
 
@@ -89,5 +102,23 @@ public class GeneriqueRestService {
 		} else {
 			return Response.ok(result).build();
 		}
+	}
+
+	@POST
+	@Path("/entity/{entity:.*}")
+	public Response createOrUpdateAnyEntity(@PathParam("entity") String anyEntity, ResourceDto resourceToUp) {
+		String hierachicalClassName = anyEntity.replace("/", ".");
+		Class<?> targetDomainClass = null;
+		try {
+			targetDomainClass = ApplicationUtils.SINGLETON.findDomainClassByName(hierachicalClassName);
+		} catch (ExecutionException e) {
+			return Response.status(Status.METHOD_NOT_ALLOWED)
+					.entity(String.format("{\"message\": \"No Domain bean match %s \"}", anyEntity)).build();
+		}
+
+		IBusinessService service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass
+				.getSimpleName());
+		ResourceDto resourcePersisted = service.createOrUpdate(resourceToUp, targetDomainClass);
+		return Response.ok().entity(resourcePersisted).build();
 	}
 }

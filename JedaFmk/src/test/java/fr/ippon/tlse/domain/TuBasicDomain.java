@@ -29,6 +29,6 @@ public class TuBasicDomain {
 
 	@Max(1000)
 	@Min(0)
-	private int		num	= 0;
+	private Integer	num	= null;
 
 }

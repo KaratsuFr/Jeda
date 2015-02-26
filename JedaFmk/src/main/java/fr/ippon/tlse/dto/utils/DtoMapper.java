@@ -99,6 +99,7 @@ public enum DtoMapper {
 
 		// 2 build field info
 		res.setLstFieldInfo(getCacheClassToFieldDto().getUnchecked(classOfItemInList));
+
 		Description annoDescrip = classOfItemInList.getAnnotation(Description.class);
 		if (annoDescrip != null) {
 			res.setDescription(annoDescrip.value());
@@ -116,6 +117,10 @@ public enum DtoMapper {
 					Field field = object.getClass().getDeclaredField(fieldDto.getFieldName());
 					field.setAccessible(true);
 
+					// save index of id column
+					if (fieldDto.getFieldName().equals(domainAnno.idColumnName())) {
+						res.setPositionOfId(lstValue.size());
+					}
 					ValueDto vDto = new ValueDto();
 					// Collection or Domain object are not mapped by default need @Embended
 					if (Collection.class.isAssignableFrom(field.getType())) {

@@ -1,1 +1,12 @@
 <p>This is the edit view.</p>
+
+<div
+	class="row"
+	ng-repeat="fieldInfo in resource.lstFieldInfo track by $index">
+	<label
+		class="control-label"
+		translate="{{fieldInfo.label}}"></label> <input
+		type="{{fieldInfo.jsType}}"
+		class="form-control"
+		ng-model="resource.lstValues[0][$index].value"></input>
+</div>
