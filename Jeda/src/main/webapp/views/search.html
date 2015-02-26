@@ -4,31 +4,23 @@
 <table
 	ng-table="tableParams"
 	class="table">
-
 	<thead>
-		<tr ng-repeat="fieldInfo in resource.lstFieldInfo">
+		<tr>
 			<th
+				ng-repeat="fieldInfo in resource.lstFieldInfo track by fieldInfo.label"
 				class="sortable"
+				filter="{ '{{fieldInfo.label}}' : '{{fieldInfo.jsType}}'}"
 				ng-class="{
-                    'sort-asc': tableParams.isSortBy(fieldInfo.label, 'asc')
+                    'sort-asc': tableParams.isSortBy('{{fieldInfo.label}}', 'asc'),
+                    'sort-desc': tableParams.isSortBy('{{fieldInfo.label}}', 'desc')
                   }"
-				ng-click="tableParams.sorting({'name' : tableParams.isSortBy(fieldInfo.label, 'asc') ? 'desc' : 'asc'})"
-				rowspan="2">
-
-				<div>
-					{{fieldInfo.label}}
-				</div>
-			</th>			
+				ng-click="tableParams.sorting({ {{fieldInfo.label}}: tableParams.isSortBy('{{fieldInfo.label}}', 'asc') ? 'desc' : 'asc'})"><div>
+					{{fieldInfo.label}}</div></th>
 		</tr>
-
 	</thead>
-
 	<tbody>
 		<tr ng-repeat="values in $data">
-			
-			<td ng-repeat="fieldInfo in resource.lstFieldInfo track by $index"
-				data-title="fieldInfo.label" 
-				sortable="fieldInfo.label">{{values[$index].value}}</td>			
+			<td ng-repeat="valueDto in values track by $index" sortable="{{resource.lstFieldInfo[$index].label}}">{{valueDto.value}}</td>
 
 		</tr>
 	</tbody>

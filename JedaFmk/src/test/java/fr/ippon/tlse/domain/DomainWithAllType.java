@@ -2,7 +2,6 @@ package fr.ippon.tlse.domain;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 
@@ -14,57 +13,57 @@ import fr.ippon.tlse.annotation.Embended;
 @Domain(label = "superModel", idColumnName = "text")
 public class DomainWithAllType {
 
-	private String						text;
+	private String				text;
 
-	private Character					oneChar;
+	private Character			oneChar;
 
-	private char						primitiveChar;
+	private char				primitiveChar;
 
-	private Boolean						bool;
+	private Boolean				bool;
 
-	private boolean						primitiveBool;
+	private boolean				primitiveBool;
 
-	private Byte						oneByte;
+	private Byte				oneByte;
 
-	private byte						primitiveByte;
+	private byte				primitiveByte;
 
-	private Short						oneShort;
-	private short						primitiveShort;
+	private Short				oneShort;
+	private short				primitiveShort;
 
-	private Integer						oneInt;
+	private Integer				oneInt;
 
-	private int							primitiveInt;
+	private int					primitiveInt;
 
-	private Long						oneLong;
-	private long						primitiveLong;
+	private Long				oneLong;
+	private long				primitiveLong;
 
-	private Float						oneFloat;
+	private Float				oneFloat;
 
-	private float						primitiveFloat;
+	private float				primitiveFloat;
 
-	private Double						oneDouble;
+	private Double				oneDouble;
 
-	private double						primitiveDouble;
+	private double				primitiveDouble;
 
 	// supported with limit .. Domain can t contains inner @Embended
-	@Embended
-	private Collection<TuBasicDomain>	collDomain;
+	// @Embended
+	// private Collection<TuBasicDomain> collDomain;
 
 	// NotSupported
 	// Map<String, TuBasicDomain> mapDomain;
 
-	private Optional<String>			optionnalObj;
+	private Optional<String>	optionnalObj;
 
 	@Embended
-	private TuBasicDomain				domain;
+	private TuBasicDomain		domain;
 
-	private Date						oneDate;
+	private Date				oneDate;
 
 	// Supported but test failed due to invalid generic equals on calendar
 	// private Calendar oneCalendar;
 
-	private LocalDate					localDate;
+	private LocalDate			localDate;
 
-	private LocalDateTime				localDateTime;
+	private LocalDateTime		localDateTime;
 
 }

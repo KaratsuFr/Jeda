@@ -24,6 +24,8 @@ public class MockTuBasicBuniess implements IBusinessService {
 
 	@Override
 	public ResourceDto readAll(Class<?> domainClass, Optional<String> parentId) {
+		ApplicationUtils.SINGLETON.resetCacheClass();
+		DtoMapper.SINGLETON.resetCache();
 		return DtoMapper.SINGLETON.buildResourceFromDomain(new ArrayList<TuBasicDomain>(mockPersistance.values()));
 	}
 

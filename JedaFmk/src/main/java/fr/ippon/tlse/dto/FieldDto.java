@@ -16,7 +16,8 @@ public class FieldDto {
 
 	private String				label;
 	private String				description;
-	private String				type;
+	private String				javaType;
+	private String				jsType;
 
 	private String				fieldName;
 	private boolean				searchInvert		= false;

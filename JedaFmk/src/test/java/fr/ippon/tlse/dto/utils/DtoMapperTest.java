@@ -59,7 +59,7 @@ public class DtoMapperTest {
 		List<DomainWithAllType> lstDomain3 = new ArrayList<>();
 		DomainWithAllType fullDom = new DomainWithAllType();
 		fullDom.setBool(Boolean.TRUE);
-		fullDom.setCollDomain(lstDomain);
+		// fullDom.setCollDomain(lstDomain);
 		Map<String, TuBasicDomain> mapX = new HashMap<>();
 		mapX.put("xx", a);
 		// fullDom.setMapDomain(mapX);

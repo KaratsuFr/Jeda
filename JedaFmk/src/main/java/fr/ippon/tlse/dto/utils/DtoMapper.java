@@ -125,9 +125,9 @@ public enum DtoMapper {
 						} else {
 							vDto.setValue(field.get(object));
 						}
-					} else if (StringUtils
-							.startsWith(fieldDto.getType(), ApplicationUtils.SINGLETON.getDomainPackage())
-							|| StringUtils.startsWith(fieldDto.getType(),
+					} else if (StringUtils.startsWith(fieldDto.getJavaType(),
+							ApplicationUtils.SINGLETON.getDomainPackage())
+							|| StringUtils.startsWith(fieldDto.getJavaType(),
 									ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
 						Embended annoEmbended = field.getAnnotation(Embended.class);
 						if (annoEmbended == null || annoEmbended.value() == false) {
@@ -140,7 +140,7 @@ public enum DtoMapper {
 						throw new NotSupportedException("Enum on Domain bean are not supported!");
 					} else if (Map.class.isAssignableFrom(field.getType())) {
 						throw new NotSupportedException("Map on Domain bean are not supported!");
-					} else if (StringUtils.startsWith(fieldDto.getType(), "java.")) {
+					} else if (StringUtils.startsWith(fieldDto.getJavaType(), "java.")) {
 						vDto.setValue(field.get(object));
 					} else {
 						throw new NotSupportedException(field.getType().getSimpleName()
@@ -191,7 +191,7 @@ public enum DtoMapper {
 		if (!StringUtils.equals(resource.getClassName(), targetClass.getSimpleName())) {
 			throw new JedaException(ErrorCode.TO_BE_DEFINE,
 					"Can t build domain from Resource, type doesn't match. Expected:" + targetClass.getSimpleName()
-					+ " but Resource is made of:" + resource.getClassName());
+							+ " but Resource is made of:" + resource.getClassName());
 		}
 
 		List<T> lstDomain = new ArrayList<>();
@@ -211,9 +211,9 @@ public enum DtoMapper {
 					}
 					Field f = targetClass.getDeclaredField(fieldDto.getFieldName());
 					f.setAccessible(true);
-					String className = fieldDto.getType();
+					String className = fieldDto.getJavaType();
 					if (className.contains("<")) {
-						className = StringUtils.left(fieldDto.getType(), fieldDto.getType().indexOf("<"));
+						className = StringUtils.left(className, className.indexOf("<"));
 					}
 
 					Class<?> valueType = Class.forName(className);
@@ -223,10 +223,10 @@ public enum DtoMapper {
 						if (Collection.class.isAssignableFrom(valueType)) {
 							val = convertCollectionTypeToSpecific(val, fieldDto, valDto, f);
 						} else if (Map.class.isAssignableFrom(valueType)) {
-							val = convertMapTypeToSpecific(val, fieldDto.getType(), fieldDto, valDto, f);
-						} else if (StringUtils.startsWith(fieldDto.getType(),
+							val = convertMapTypeToSpecific(val, fieldDto.getJavaType(), fieldDto, valDto, f);
+						} else if (StringUtils.startsWith(fieldDto.getJavaType(),
 								ApplicationUtils.SINGLETON.getDomainPackage())
-								|| StringUtils.startsWith(fieldDto.getType(),
+								|| StringUtils.startsWith(fieldDto.getJavaType(),
 										ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
 							val = convertDomainTypeToSpecific(val, fieldDto, valDto, f);
 						} else if (!valueType.isAssignableFrom(val.getClass())) {
@@ -286,7 +286,7 @@ public enum DtoMapper {
 			@SuppressWarnings("unchecked")
 			Collection<Map<String, Object>> colVal = (Collection<Map<String, Object>>) genericVal;
 
-			String collInnerClassName = StringUtils.substringBetween(fDto.getType(), "<", ">");
+			String collInnerClassName = StringUtils.substringBetween(fDto.getJavaType(), "<", ">");
 			Class<?> collInnerClass = Class.forName(collInnerClassName);
 			List<Object> lst = new ArrayList<>();
 			for (Map<String, Object> mappedValue : colVal) {
@@ -404,6 +404,7 @@ public enum DtoMapper {
 		Set<Integer> setOrderReserved = new HashSet<>();
 		for (Field field : tabFielsOfClass) {
 			JsonIgnore annoIgnore = field.getAnnotation(JsonIgnore.class);
+			Class<?> javaType = null;
 			if (annoIgnore == null) {
 				FieldDto fieldDto = new FieldDto();
 				fieldDto.setLabel(field.getName());
@@ -411,28 +412,28 @@ public enum DtoMapper {
 					String primType = field.getType().getName();
 					switch (primType) {
 						case "boolean":
-							fieldDto.setType(Boolean.class.getName());
+							javaType = Boolean.class;
 							break;
 						case "char":
-							fieldDto.setType(Character.class.getName());
+							javaType = Character.class;
 							break;
 						case "byte":
-							fieldDto.setType(Byte.class.getName());
+							javaType = Byte.class;
 							break;
 						case "short":
-							fieldDto.setType(Short.class.getName());
+							javaType = Short.class;
 							break;
 						case "int":
-							fieldDto.setType(Integer.class.getName());
+							javaType = Integer.class;
 							break;
 						case "long":
-							fieldDto.setType(Long.class.getName());
+							javaType = Long.class;
 							break;
 						case "float":
-							fieldDto.setType(Float.class.getName());
+							javaType = Float.class;
 							break;
 						case "double":
-							fieldDto.setType(Double.class.getName());
+							javaType = Double.class;
 							break;
 						default:
 							throw new JedaException(ErrorCode.TO_BE_DEFINE, "Unmanaged primitive type: " + primType);
@@ -443,14 +444,15 @@ public enum DtoMapper {
 
 					Type type = field.getGenericType();
 					if (type instanceof ParameterizedType) {
-						fieldDto.setType(type.toString());
+						javaType = ((ParameterizedType) type).getActualTypeArguments()[0].getClass();
 					} else {
-						fieldDto.setType(field.getType().getName());
+						javaType = field.getType();
 					}
 				} else {
-					fieldDto.setType(field.getType().getName());
+					javaType = field.getType();
 				}
 
+				fieldDto.setJavaType(javaType.getName());
 				fieldDto.setFieldName(field.getName());
 				Annotation[] annotationOfField = field.getAnnotations();
 				for (Annotation annotation : annotationOfField) {
@@ -462,7 +464,7 @@ public enum DtoMapper {
 						genericAnnoH.handleAnnotation(annotation, fieldDto);
 					}
 				}
-
+				fieldDto.setJsType(ConvertJs2JavaType.getJsTypeFromClass(javaType));
 				setOrderReserved.add(fieldDto.getOrder());
 				lstField.add(fieldDto);
 			}
@@ -479,5 +481,4 @@ public enum DtoMapper {
 		}
 		return lstField;
 	}
-
 }
