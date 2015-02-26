@@ -14,7 +14,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.ippon.tlse</groupId>
-			<artifactId>JedaFkm</artifactId>
+			<artifactId>JedaFmk</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
