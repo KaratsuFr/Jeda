@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.cache.CacheBuilder;
@@ -41,6 +42,7 @@ import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.annotation.Description;
 import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.annotation.Embended;
+import fr.ippon.tlse.annotation.Id;
 import fr.ippon.tlse.dto.FieldDto;
 import fr.ippon.tlse.dto.ResourceDto;
 import fr.ippon.tlse.dto.ValueDto;
@@ -70,16 +72,10 @@ public enum DtoMapper {
 		cacheClassToFieldDto.invalidateAll();
 	}
 
-	public <T> ResourceDto buildResourceFromDomain(List<T> lstDomainValues) {
-
+	public <T> ResourceDto buildResourceFromDomain(List<T> lstDomainValues, Class<T> targetClass) {
 		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-		if (lstDomainValues == null || lstDomainValues.isEmpty()) {
-			return null;
-		}
-
-		@SuppressWarnings("unchecked")
-		Class<T> classOfItemInList = (Class<T>) lstDomainValues.get(0).getClass();
+		Class<T> classOfItemInList = targetClass;
 		// 1 check package lstDomainValues
 		if (!(StringUtils.contains(classOfItemInList.getPackage().getName(),
 				ApplicationUtils.SINGLETON.getDomainPackage()) || StringUtils.contains(classOfItemInList.getPackage()
@@ -118,8 +114,9 @@ public enum DtoMapper {
 					field.setAccessible(true);
 
 					// save index of id column
-					if (fieldDto.getFieldName().equals(domainAnno.idColumnName())) {
+					if (fieldDto.isId()) {
 						res.setPositionOfId(lstValue.size());
+
 					}
 					ValueDto vDto = new ValueDto();
 					// Collection or Domain object are not mapped by default need @Embended
@@ -147,6 +144,10 @@ public enum DtoMapper {
 						throw new NotSupportedException("Map on Domain bean are not supported!");
 					} else if (StringUtils.startsWith(fieldDto.getJavaType(), "java.")) {
 						vDto.setValue(field.get(object));
+					} else if (StringUtils.equals(ObjectId.class.getName(), fieldDto.getJavaType())) {
+						ObjectId objId = (ObjectId) field.get(object);
+
+						vDto.setValue(objId);
 					} else {
 						throw new NotSupportedException(field.getType().getSimpleName()
 								+ " on Domain bean are not supported!");
@@ -155,7 +156,7 @@ public enum DtoMapper {
 					lstValue.add(vDto);
 				}
 				res.getLstValues().add(lstValue);
-
+				res.setTotalNbResult(lstValue.size());
 				// 5 finally check validation error on object
 				Set<ConstraintViolation<Object>> setConstraintViolations = validator.validate(object);
 				for (ConstraintViolation<Object> constraintViolation : setConstraintViolations) {
@@ -272,7 +273,20 @@ public enum DtoMapper {
 
 			Object targetObj = f2.getType().newInstance();
 			for (Entry<String, Object> entry : colVal.entrySet()) {
-				Field f = f2.getType().getDeclaredField(entry.getKey());
+				Field f = null;
+				// special case for @Id
+				if (StringUtils.equals("_id", entry.getKey())) {
+					// search field is @Id
+					Field[] tabF = f2.getType().getDeclaredFields();
+					for (Field field : tabF) {
+						Id annoId = field.getAnnotation(Id.class);
+						if (annoId != null) {
+							f = field;
+						}
+					}
+				} else {
+					f = f2.getType().getDeclaredField(entry.getKey());
+				}
 				f.setAccessible(true);
 				f.set(targetObj, entry.getValue());
 			}
@@ -443,7 +457,6 @@ public enum DtoMapper {
 						default:
 							throw new JedaException(ErrorCode.TO_BE_DEFINE, "Unmanaged primitive type: " + primType);
 					}
-
 				} else if (Collection.class.isAssignableFrom(field.getType())
 						|| Map.class.isAssignableFrom(field.getType())) {
 
@@ -464,9 +477,9 @@ public enum DtoMapper {
 					AnnotationHandler annoH = AnnotationManager.SINGLETON.getMapAnnoH()
 							.get(annotation.annotationType());
 					if (annoH != null) {
-						annoH.handleAnnotation(annotation, fieldDto);
+						fieldDto = annoH.handleAnnotation(annotation, fieldDto);
 					} else {
-						genericAnnoH.handleAnnotation(annotation, fieldDto);
+						fieldDto = genericAnnoH.handleAnnotation(annotation, fieldDto);
 					}
 				}
 				fieldDto.setJsType(ConvertJs2JavaType.getJsTypeFromClass(javaType));

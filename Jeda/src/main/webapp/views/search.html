@@ -1,5 +1,4 @@
-<p>This is the search view.</p>
-{{currBean}}
+<p>This is the search & list view for {{$root.currBean}}</p>
 
 <table
 	ng-table="tableParams"
@@ -7,21 +6,34 @@
 	<thead>
 		<tr>
 			<th
-				ng-repeat="fieldInfo in resource.lstFieldInfo track by fieldInfo.label"
+				ng-repeat="fieldInfo in resource.lstFieldInfo"
 				class="sortable"
 				filter="{ fieldInfo.label : fieldInfo.jsType}"
 				ng-class="{
                     'sort-asc': tableParams.isSortBy(fieldInfo.label, 'asc'),
                     'sort-desc': tableParams.isSortBy(fieldInfo.label, 'desc')
                   }"
-				ng-click="tableParams.sorting({ fieldInfo.label: tableParams.isSortBy(fieldInfo.label, 'asc') ? 'desc' : 'asc'})"><div>
-					{{fieldInfo.label}}</div></th>
+				ng-click="tableParams.sorting(fieldInfo.label, tableParams.isSortBy(fieldInfo.label, 'asc') ? 'desc' : 'asc')">
+				<div>{{fieldInfo.label}}</div>
+			</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr ng-repeat="values in $data" style="cursor: pointer" ng-click="viewBean(values[resource.positionOfId].value)">
-			<td ng-repeat="valueDto in values track by $index" sortable="{{resource.lstFieldInfo[$index].label}}">{{valueDto.value}}</td>
+		<tr
+			ng-repeat="values in $data"
+			style="cursor: pointer"
+			ng-click="viewBean(values[resource.positionOfId].value)">
+			<td
+				ng-repeat="valueDto in values track by $index"
+				sortable="{{resource.lstFieldInfo[$index].label}}">{{valueDto.value}}</td>
 		</tr>
 	</tbody>
 
+
 </table>
+
+<button
+	class="btn btn-default btn-primary"
+	ng-click="createBean()">
+	<span class="glyphicon glyphicon-plus"></span> <span translate="label.jeda.add"></span>
+</button>

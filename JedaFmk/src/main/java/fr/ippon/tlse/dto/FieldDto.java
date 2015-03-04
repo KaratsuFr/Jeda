@@ -23,6 +23,7 @@ public class FieldDto {
 	private boolean				searchInvert		= false;
 	private boolean				searchIgnoreCase	= false;
 
+	private boolean				isId				= false;
 	private String				urlTypeaheadService;
 
 	private List<KeyValueDto>	lstConstraint		= new ArrayList<>();

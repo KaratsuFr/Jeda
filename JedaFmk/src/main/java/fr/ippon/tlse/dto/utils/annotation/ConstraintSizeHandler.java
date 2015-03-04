@@ -24,7 +24,7 @@ public class ConstraintSizeHandler implements AnnotationHandler {
 
 		}
 
-		return null;
+		return fDto;
 	}
 
 }

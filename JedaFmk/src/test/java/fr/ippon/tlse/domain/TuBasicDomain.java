@@ -13,22 +13,27 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import fr.ippon.tlse.annotation.Description;
 import fr.ippon.tlse.annotation.Domain;
+import fr.ippon.tlse.annotation.Id;
+import fr.ippon.tlse.annotation.Label;
 
 @Data
 @Description("basic domain bean for test")
 @NoArgsConstructor
 @Builder
-@AllArgsConstructor
-@Domain(label = "BasicBean", idColumnName = "num")
+@AllArgsConstructor()
+@Domain(label = "BasicBean")
 public class TuBasicDomain {
 
 	@Size(max = 100)
 	@NotBlank
 	@Description("simple text field")
+	@Label("label.TuBasicDomain.text")
 	private String	text;
 
 	@Max(1000)
 	@Min(0)
+	@Label("label.TuBasicDomain.numero")
+	@Id
 	private Integer	num	= null;
 
 }

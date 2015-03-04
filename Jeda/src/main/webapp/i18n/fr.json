@@ -1,0 +1,24 @@
+{
+	"label": 
+	{
+		"app": 
+		{
+			"name": "JEDA",
+			"home": "Accueil",
+			"about": "A propos"
+		},
+
+		"jeda": 
+		{
+			"hello": "Bienvenu",
+			"pub": "C'est un plaisir de Jeda vos applications",
+			"description": "Jeda signifie : Java / Javascript Express Data Access",
+			"about": "Declarer vos Java Domain Bean avec des annotations standard (validation: JSR 303, ...) ou bien des Jeda annotations.\n Jeda s'occupe de tout: la navigation, la visualisation, la persistence, la recherche et même plus.",
+			"bean": 
+			{
+				"list": "Liste des domaines administrables."
+			},
+			"add":"Ajouter"
+		}
+	}
+}

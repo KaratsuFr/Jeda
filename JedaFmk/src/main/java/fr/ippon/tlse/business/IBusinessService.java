@@ -1,19 +1,17 @@
 package fr.ippon.tlse.business;
 
-import java.util.Optional;
-
 import fr.ippon.tlse.dto.ResourceDto;
 
-public interface IBusinessService {
+public interface IBusinessService<T> {
 
-	ResourceDto readAll(Class<?> domainClass, Optional<String> parentId);
+	ResourceDto readAll(Class<T> domainClass);
 
-	ResourceDto searchByCriteria(ResourceDto resource, Class<?> domainClass);
+	ResourceDto searchByCriteria(ResourceDto resource, Class<T> domainClass);
 
-	ResourceDto readById(String id, Class<?> domainClass);
+	ResourceDto readById(String id, Class<T> domainClass);
 
-	ResourceDto createOrUpdate(ResourceDto resource, Class<?> domainClass);
+	ResourceDto createOrUpdate(ResourceDto resource, Class<T> domainClass);
 
-	boolean deleteById(String id, Class<?> domainClass);
+	boolean deleteById(String id, Class<T> domainClass);
 
 }

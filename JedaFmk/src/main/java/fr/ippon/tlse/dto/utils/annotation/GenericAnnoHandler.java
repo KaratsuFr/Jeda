@@ -29,6 +29,6 @@ public class GenericAnnoHandler implements AnnotationHandler {
 			log.debug("Impossible to handle annotation {} - Details: {}", anno, e.getMessage());
 		}
 
-		return null;
+		return fDto;
 	}
 }

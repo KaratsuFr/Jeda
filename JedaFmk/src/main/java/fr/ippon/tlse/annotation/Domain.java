@@ -9,7 +9,5 @@ import java.lang.annotation.Target;
 @Target(value = { ElementType.TYPE })
 public @interface Domain {
 
-	String idColumnName() default "id";
-
 	String label();
 }

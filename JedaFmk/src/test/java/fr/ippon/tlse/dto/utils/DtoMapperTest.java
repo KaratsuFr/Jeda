@@ -87,7 +87,8 @@ public class DtoMapperTest {
 		fullDom.setLocalDateTime(LocalDateTime.now());
 		lstDomain3.add(fullDom);
 
-		return new Object[][] { new Object[] { lstDomain }, new Object[] { lstDomain2 }, new Object[] { lstDomain3 } };
+		return new Object[][] { new Object[] { lstDomain, TuBasicDomain.class },
+				new Object[] { lstDomain2, TuBasicDomain.class }, new Object[] { lstDomain3, DomainWithAllType.class } };
 
 	}
 
@@ -114,13 +115,14 @@ public class DtoMapperTest {
 		a.setNum(1001);
 		lstDomain2.add(a);
 
-		return new Object[][] { new Object[] { lstDomain }, new Object[] { lstDomain2 } };
+		return new Object[][] { new Object[] { lstDomain, TuBasicDomain.class },
+				new Object[] { lstDomain2, TuBasicDomain.class } };
 
 	}
 
 	@Test(dataProvider = "lstDomainValid")
-	public void testResource2DomainReverse(List<Object> lstDomain) throws IOException {
-		ResourceDto result = DtoMapper.SINGLETON.buildResourceFromDomain(lstDomain);
+	public void testResource2DomainReverse(List<Object> lstDomain, Class type) throws IOException {
+		ResourceDto result = DtoMapper.SINGLETON.buildResourceFromDomain(lstDomain, type);
 
 		String jsonResourceDto = ApplicationUtils.SINGLETON.getMapper().writeValueAsString(result);
 		ResourceDto r2 = ApplicationUtils.SINGLETON.getMapper().readValue(jsonResourceDto, result.getClass());
@@ -136,9 +138,9 @@ public class DtoMapperTest {
 	}
 
 	@Test(dataProvider = "lstDomainValid")
-	public void buildResourceFromDomain(List<Object> lstDomain) {
+	public void buildResourceFromDomain(List<Object> lstDomain, Class type) {
 		log.info("test buildResourceFromDomain with {}", lstDomain.toString());
-		ResourceDto result = DtoMapper.SINGLETON.buildResourceFromDomain(lstDomain);
+		ResourceDto result = DtoMapper.SINGLETON.buildResourceFromDomain(lstDomain, type);
 		Assert.assertNotNull(result);
 		log.info(result.toString());
 		Assert.assertNotNull(result.getLstFieldInfo());
@@ -168,9 +170,9 @@ public class DtoMapperTest {
 	}
 
 	@Test(dataProvider = "lstDomainInvalid")
-	public void buildResourceFromDomainError(List<Object> lstDomain) {
+	public void buildResourceFromDomainError(List<Object> lstDomain, Class type) {
 		log.info("test buildResourceFromDomain with {}", lstDomain.toString());
-		ResourceDto result = DtoMapper.SINGLETON.buildResourceFromDomain(lstDomain);
+		ResourceDto result = DtoMapper.SINGLETON.buildResourceFromDomain(lstDomain, type);
 		Assert.assertNotNull(result);
 		log.info(result.toString());
 		Assert.assertNotNull(result.getLstFieldInfo());

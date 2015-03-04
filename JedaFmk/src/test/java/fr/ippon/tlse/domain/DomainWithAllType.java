@@ -8,11 +8,13 @@ import java.util.Optional;
 import lombok.Data;
 import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.annotation.Embended;
+import fr.ippon.tlse.annotation.Id;
 
 @Data
-@Domain(label = "superModel", idColumnName = "text")
+@Domain(label = "superModel")
 public class DomainWithAllType {
 
+	@Id
 	private String				text;
 
 	private Character			oneChar;

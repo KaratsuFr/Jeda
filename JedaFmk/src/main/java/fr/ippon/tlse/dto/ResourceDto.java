@@ -17,6 +17,8 @@ public class ResourceDto {
 
 	private int						positionOfId	= -1;
 
+	private int						totalNbResult;
+
 	@NotNull
 	private String					className;
 

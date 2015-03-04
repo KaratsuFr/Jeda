@@ -2,7 +2,6 @@ package fr.ippon.tlse.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.Consumes;
@@ -28,7 +27,6 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.dto.ResourceDto;
-import fr.ippon.tlse.dto.exception.InvalidBeanException;
 import fr.ippon.tlse.dto.utils.DtoMapper;
 
 @Path("/")
@@ -56,14 +54,15 @@ public class GeneriqueRestService {
 	}
 
 	// service to list all or one using param URL: id or parentId
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/entity/{entity:.*}")
-	public Response getAnyEntity(@PathParam("entity") String anyEntity) {
+	public <T> Response getAnyEntity(@PathParam("entity") String anyEntity) {
 
 		String hierachicalClassName = anyEntity.replace("/", ".");
-		Class<?> targetDomainClass = null;
+		Class<T> targetDomainClass = null;
 		try {
-			targetDomainClass = ApplicationUtils.SINGLETON.findDomainClassByName(hierachicalClassName);
+			targetDomainClass = (Class<T>) ApplicationUtils.SINGLETON.findDomainClassByName(hierachicalClassName);
 		} catch (ExecutionException e) {
 			return Response.status(Status.METHOD_NOT_ALLOWED)
 					.entity(String.format("{\"message\": \"No Domain bean match %s \"}", anyEntity)).build();
@@ -73,51 +72,42 @@ public class GeneriqueRestService {
 		MultivaluedMap<String, String> parameters = ApplicationUtils.SINGLETON.getQueryParam();
 		// Special case to build new resource from empty object to provide create view
 		if (parameters.containsKey(StandardUrlParameters.create.name())) {
-			try {
-				List<Object> listDmainOneItemEmpty = new ArrayList<>();
-				listDmainOneItemEmpty.add(targetDomainClass.newInstance());
-				result = DtoMapper.SINGLETON.buildResourceFromDomain(listDmainOneItemEmpty);
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new InvalidBeanException(targetDomainClass);
-			}
+			List<T> listDmainOneItemEmpty = new ArrayList<>();
+			result = DtoMapper.SINGLETON.buildResourceFromDomain(listDmainOneItemEmpty, targetDomainClass);
 		} else {
 			List<String> idParam = parameters.get(StandardUrlParameters.id.name());
-			IBusinessService service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass
-					.getSimpleName());
+			IBusinessService<T> service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass);
 
 			if (idParam != null && idParam.size() == 1) {
 				result = service.readById(idParam.get(0), targetDomainClass);
 			} else {
 				List<String> parentIdParam = parameters.get(StandardUrlParameters.parentId.name());
-				if (parentIdParam != null && parentIdParam.size() == 1) {
-					result = service.readAll(targetDomainClass, Optional.of(parentIdParam.get(0)));
-				} else {
-					result = service.readAll(targetDomainClass, Optional.empty());
-				}
+				// TODO
+				result = service.readAll(targetDomainClass);
 			}
 		}
 
 		if (result == null) {
-			return Response.status(Status.NOT_FOUND).build();
+			return Response.status(Status.NO_CONTENT).entity(result).build();
 		} else {
 			return Response.ok(result).build();
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@POST
 	@Path("/entity/{entity:.*}")
-	public Response createOrUpdateAnyEntity(@PathParam("entity") String anyEntity, ResourceDto resourceToUp) {
+	public <T> Response createOrUpdateAnyEntity(@PathParam("entity") String anyEntity, ResourceDto resourceToUp) {
 		String hierachicalClassName = anyEntity.replace("/", ".");
-		Class<?> targetDomainClass = null;
+		Class<T> targetDomainClass = null;
 		try {
-			targetDomainClass = ApplicationUtils.SINGLETON.findDomainClassByName(hierachicalClassName);
+			targetDomainClass = (Class<T>) ApplicationUtils.SINGLETON.findDomainClassByName(hierachicalClassName);
 		} catch (ExecutionException e) {
 			return Response.status(Status.METHOD_NOT_ALLOWED)
 					.entity(String.format("{\"message\": \"No Domain bean match %s \"}", anyEntity)).build();
 		}
 
-		IBusinessService service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass
-				.getSimpleName());
+		IBusinessService<T> service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass);
 		ResourceDto resourcePersisted = service.createOrUpdate(resourceToUp, targetDomainClass);
 		return Response.ok().entity(resourcePersisted).build();
 	}

@@ -1,44 +1,63 @@
 package fr.ippon.tlse.business;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.lang3.NotImplementedException;
 
+import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.dto.ResourceDto;
 import fr.ippon.tlse.dto.utils.DtoMapper;
+import fr.ippon.tlse.persistence.CursoWrapper;
+import fr.ippon.tlse.persistence.IPersistenceManager;
 
-public class GeneriqueBusiness implements IBusinessService {
+public class GeneriqueBusiness<T> implements IBusinessService<T> {
 
 	@Override
-	public ResourceDto readAll(Class<?> domainClass, Optional<String> parentId) {
-		// TODO call DAO
-		throw new NotImplementedException("readAll");
+	public ResourceDto readAll(Class<T> domainClass) {
+		IPersistenceManager<T> dao = ApplicationUtils.SINGLETON.getPersistenceServiceForClass(domainClass);
+		CursoWrapper<T> cursor = dao.searchFromContextCriteria(domainClass);
+
+		List<T> lstDomainObj = new ArrayList<>();
+		while (cursor.hasNext()) {
+			lstDomainObj.add(cursor.next());
+		}
+		ResourceDto r = DtoMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, domainClass);
+		r.setTotalNbResult(cursor.count());
+		return r;
 	}
 
 	@Override
-	public ResourceDto searchByCriteria(ResourceDto resource, Class<?> domainClass) {
+	public ResourceDto searchByCriteria(ResourceDto resource, Class<T> domainClass) {
 		// TODO call DAO
 		throw new NotImplementedException("searchByCriteria");
 	}
 
 	@Override
-	public ResourceDto readById(String id, Class<?> domainClass) {
-		// TODO call DAO
-		throw new NotImplementedException("readById");
+	public ResourceDto readById(String id, Class<T> domainClass) {
+		IPersistenceManager<T> dao = ApplicationUtils.SINGLETON.getPersistenceServiceForClass(domainClass);
+		T bean = dao.readOne(id, domainClass);
+
+		List<T> lstDomainObj = new ArrayList<>();
+		lstDomainObj.add(bean);
+		return DtoMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, domainClass);
 	}
 
 	@Override
-	public ResourceDto createOrUpdate(ResourceDto resource, Class<?> domainClass) {
-		List<?> lstDomainObj = DtoMapper.SINGLETON.buildLstDomainFromResource(resource, domainClass);
-		// TODO call DAO
+	public ResourceDto createOrUpdate(ResourceDto resource, Class<T> domainClass) {
+		List<T> lstDomainObj = DtoMapper.SINGLETON.buildLstDomainFromResource(resource, domainClass);
 
-		return DtoMapper.SINGLETON.buildResourceFromDomain(lstDomainObj);
+		IPersistenceManager<T> dao = ApplicationUtils.SINGLETON.getPersistenceServiceForClass(domainClass);
+		for (T object : lstDomainObj) {
+			dao.saveOrUpdate(object);
+		}
+
+		return DtoMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, domainClass);
 
 	}
 
 	@Override
-	public boolean deleteById(String id, Class<?> domainClass) {
+	public boolean deleteById(String id, Class<T> domainClass) {
 		// TODO call DAO
 		throw new NotImplementedException("deleteById");
 	}

@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
-import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.dto.ResourceDto;
 import fr.ippon.tlse.dto.utils.DtoMapper;
 
-public class MockTuBasicBuniess implements IBusinessService {
+public class MockTuBasicBuniess implements IBusinessService<TuBasicDomain> {
 
 	private Map<String, TuBasicDomain>	mockPersistance	= new HashMap<>();
 
@@ -24,28 +22,29 @@ public class MockTuBasicBuniess implements IBusinessService {
 	}
 
 	@Override
-	public ResourceDto readAll(Class<?> domainClass, Optional<String> parentId) {
+	public ResourceDto readAll(Class<TuBasicDomain> domainClass) {
 		ApplicationUtils.SINGLETON.resetCacheClass();
 		DtoMapper.SINGLETON.resetCache();
-		return DtoMapper.SINGLETON.buildResourceFromDomain(new ArrayList<TuBasicDomain>(mockPersistance.values()));
+		return DtoMapper.SINGLETON.buildResourceFromDomain(new ArrayList<TuBasicDomain>(mockPersistance.values()),
+				domainClass);
 	}
 
 	@Override
-	public ResourceDto searchByCriteria(ResourceDto resource, Class<?> domainClass) {
+	public ResourceDto searchByCriteria(ResourceDto resource, Class<TuBasicDomain> domainClass) {
 		return null;
 	}
 
 	@Override
-	public ResourceDto readById(String id, Class<?> domainClass) {
+	public ResourceDto readById(String id, Class<TuBasicDomain> domainClass) {
 		TuBasicDomain dom = mockPersistance.get(id);
 
 		ArrayList<TuBasicDomain> lstResult = new ArrayList<>();
 		lstResult.add(dom);
-		return DtoMapper.SINGLETON.buildResourceFromDomain(lstResult);
+		return DtoMapper.SINGLETON.buildResourceFromDomain(lstResult, domainClass);
 	}
 
 	@Override
-	public ResourceDto createOrUpdate(ResourceDto resource, Class<?> domainClass) {
+	public ResourceDto createOrUpdate(ResourceDto resource, Class<TuBasicDomain> domainClass) {
 		List<TuBasicDomain> lstDomain = DtoMapper.SINGLETON.buildLstDomainFromResource(resource, TuBasicDomain.class);
 		for (TuBasicDomain tuBasicDomain : lstDomain) {
 			if (tuBasicDomain.getNum() == null) {
@@ -58,7 +57,7 @@ public class MockTuBasicBuniess implements IBusinessService {
 	}
 
 	@Override
-	public boolean deleteById(String id, Class<?> domainClass) {
+	public boolean deleteById(String id, Class<TuBasicDomain> domainClass) {
 		return mockPersistance.remove(id) != null;
 
 	}

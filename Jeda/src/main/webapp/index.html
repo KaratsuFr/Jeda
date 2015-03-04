@@ -32,7 +32,7 @@
     <![endif]-->
 
 	<!-- Add your site or application content here -->
-	<div class="header">
+	<div>
 		<div
 			class="navbar navbar-default"
 			role="navigation">
@@ -50,7 +50,8 @@
 
 					<a
 						class="navbar-brand"
-						href="#/">generation</a>
+						href="#/"
+						translate="label.app.name"></a>
 				</div>
 
 				<div
@@ -58,24 +59,31 @@
 					id="js-navbar-collapse">
 
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="#/">Home</a></li>
-						<li><a ng-href="#/about">About</a></li>
-						<li><a ng-href="#/">Contact</a></li>
+						<li class="active"><a
+							href="#/"
+							translate="label.app.home"></a></li>
+						<li><a
+							ng-href="#/about"
+							translate="label.app.about"></a></li>
 					</ul>
 				</div>
 			</div>
 		</div>
 	</div>
-
 	<div class="container">
-		<div ng-view="">
+		<div id="breadcrumb">
+			<ol class="breadcrumb">
+				<li ng-repeat="breadcrumb in tabBreadcrumb" ng-class="breadcrumb.class")><a ng-if="breadcrumb.class != 'active'" ng-href="{{breadcrumb.href}}">{{breadcrumb.label}}</a><span ng-if="breadcrumb.class == 'active'">{{breadcrumb.label}}</span></li>
+				
+			</ol>
 		</div>
+		<div ng-view=""></div>
 	</div>
 
 	<div class="footer">
 		<div class="container">
 			<p>
-				<span class="glyphicon glyphicon-heart"></span> from the Yeoman team
+				<span class="glyphicon glyphicon-heart"></span> from Ippon Technologie
 			</p>
 		</div>
 	</div>
@@ -103,13 +111,14 @@
 	<script src="bower_components/angular-aria/angular-aria.min.js"></script>
 	<script src="bower_components/angular-messages/angular-messages.min.js"></script>
 	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
-	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
 	<script src="bower_components/angular-route/angular-route.min.js"></script>
 	<script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
 	<script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
 	<script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
 	<script src="bower_components/angular-translate/angular-translate.min.js"></script>
 	<script src="bower_components/ng-table/dist/ng-table.min.js"></script>
+	<script src="bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.min.js"></script>
+	<script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
 
 
 	<!-- bower:js -->
@@ -122,7 +131,7 @@
 	<script src="scripts/controllers/about.js"></script>
 	<script src="scripts/controllers/search.js"></script>
 	<script src="scripts/controllers/edit.js"></script>
-	<script src="scripts/services/contextbean.js"></script>	
+	<!-- <script src="scripts/services/contextbean.js"></script> -->
 	<!-- endbuild -->
 </body>
 </html>

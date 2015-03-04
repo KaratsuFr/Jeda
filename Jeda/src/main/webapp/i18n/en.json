@@ -1,0 +1,23 @@
+{
+	"label": 
+	{
+		"app": 
+		{
+			"name": "JEDA",
+			"home": "Home",
+			"about": "About"
+		},
+
+		"jeda": 
+		{
+			"hello": "Welcome",
+			"pub": "It's a pleasure to Jeda your apps",
+			"description": "Jeda stand for : Java / Javascript Express Data Access",
+			"about": "Jeda stand for : Java / JavaScript Express Data Access\nDeclare your Java Domain Bean with standard Annotation (validation: JSR 303, ...)+ Jeda Annotation.\nJeda do all for you: default view and navigation, persistence, search...",
+			"bean": 
+			{
+				"list": "List of Domain beans."
+			}
+		}
+	}
+}
