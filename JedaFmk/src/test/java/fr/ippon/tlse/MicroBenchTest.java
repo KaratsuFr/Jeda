@@ -19,7 +19,7 @@ import com.google.common.cache.LoadingCache;
 
 import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.dto.FieldDto;
-import fr.ippon.tlse.dto.utils.DtoMapper;
+import fr.ippon.tlse.dto.utils.Domain2ResourceMapper;
 
 @Slf4j
 public class MicroBenchTest {
@@ -35,7 +35,7 @@ public class MicroBenchTest {
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void initJdd() {
-		lstFieldRef = ((List<FieldDto>) TestUtils.SINGLETON.invokePrivateMethode("buildFieldInfo", DtoMapper.SINGLETON,
+		lstFieldRef = ((List<FieldDto>) TestUtils.SINGLETON.invokePrivateMethode("buildFieldInfo", Domain2ResourceMapper.SINGLETON,
 				TuBasicDomain.class));
 	}
 
@@ -72,7 +72,7 @@ public class MicroBenchTest {
 		List<FieldDto> lstFieldDto = null;
 		for (int i = 0; i < NB_IT; i++) {
 			lstFieldDto = ((List<FieldDto>) TestUtils.SINGLETON.invokePrivateMethode("buildFieldInfo",
-					DtoMapper.SINGLETON, TuBasicDomain.class));
+					Domain2ResourceMapper.SINGLETON, TuBasicDomain.class));
 			Assert.assertNotNull(lstFieldDto);
 		}
 		Assert.assertEquals(lstFieldDto, lstFieldRef);
@@ -82,7 +82,7 @@ public class MicroBenchTest {
 	public void testBuildFieldDtoWithCache() {
 		@SuppressWarnings("unchecked")
 		LoadingCache<Class<?>, List<FieldDto>> cache = (LoadingCache<Class<?>, List<FieldDto>>) TestUtils.SINGLETON
-				.invokePrivateMethode("getCacheClassToFieldDto", DtoMapper.SINGLETON);
+				.invokePrivateMethode("getCacheClassToFieldDto", Domain2ResourceMapper.SINGLETON);
 		List<FieldDto> lstFieldDto = null;
 		for (int i = 0; i < NB_IT; i++) {
 			lstFieldDto = cache.getUnchecked(TuBasicDomain.class);

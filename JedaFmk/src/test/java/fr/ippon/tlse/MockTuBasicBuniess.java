@@ -9,7 +9,8 @@ import java.util.UUID;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.dto.ResourceDto;
-import fr.ippon.tlse.dto.utils.DtoMapper;
+import fr.ippon.tlse.dto.utils.Domain2ResourceMapper;
+import fr.ippon.tlse.dto.utils.Resource2DomainMapper;
 
 public class MockTuBasicBuniess implements IBusinessService<TuBasicDomain> {
 
@@ -24,9 +25,9 @@ public class MockTuBasicBuniess implements IBusinessService<TuBasicDomain> {
 	@Override
 	public ResourceDto readAll(Class<TuBasicDomain> domainClass) {
 		ApplicationUtils.SINGLETON.resetCacheClass();
-		DtoMapper.SINGLETON.resetCache();
-		return DtoMapper.SINGLETON.buildResourceFromDomain(new ArrayList<TuBasicDomain>(mockPersistance.values()),
-				domainClass);
+		Domain2ResourceMapper.SINGLETON.resetCache();
+		return Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(
+				new ArrayList<TuBasicDomain>(mockPersistance.values()), domainClass);
 	}
 
 	@Override
@@ -40,12 +41,13 @@ public class MockTuBasicBuniess implements IBusinessService<TuBasicDomain> {
 
 		ArrayList<TuBasicDomain> lstResult = new ArrayList<>();
 		lstResult.add(dom);
-		return DtoMapper.SINGLETON.buildResourceFromDomain(lstResult, domainClass);
+		return Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstResult, domainClass);
 	}
 
 	@Override
 	public ResourceDto createOrUpdate(ResourceDto resource, Class<TuBasicDomain> domainClass) {
-		List<TuBasicDomain> lstDomain = DtoMapper.SINGLETON.buildLstDomainFromResource(resource, TuBasicDomain.class);
+		List<TuBasicDomain> lstDomain = Resource2DomainMapper.SINGLETON.buildLstDomainFromResource(resource,
+				TuBasicDomain.class);
 		for (TuBasicDomain tuBasicDomain : lstDomain) {
 			if (tuBasicDomain.getNum() == null) {
 				tuBasicDomain.setNum(mockPersistance.size());

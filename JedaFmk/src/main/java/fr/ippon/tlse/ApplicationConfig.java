@@ -22,9 +22,14 @@ public class ApplicationConfig extends Application {
 		singletons.add(new GlobalRestExceptionMapper());
 		singletons.add(new JedaRestExceptionMapper());
 		// register business Services
-		// key: name of the domain bean (without extension)
+		// key: the domain class bean
 		// value: instance object implements IBusinessService
-		// ApplicationUtils.SINGLETON.registerNewBusinessService(("DomainXXX", new BusinessXXX());
+		// ApplicationUtils.SINGLETON.registerNewBusinessService((DomainXXX.class, new BusinessXXX());
+
+		// register persistence Services
+		// key: name of the domain class bean
+		// value: instance object implements IPersistenceManager
+		// ApplicationUtils.SINGLETON.registerPersistentService((DomainXXX.class, new MongoPersistenceManager());
 	}
 
 	@Override

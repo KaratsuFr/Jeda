@@ -25,9 +25,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
 import fr.ippon.tlse.ApplicationUtils;
+import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.dto.ResourceDto;
-import fr.ippon.tlse.dto.utils.DtoMapper;
+import fr.ippon.tlse.dto.utils.Domain2ResourceMapper;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +48,9 @@ public class GeneriqueRestService {
 		List<String> lstStringName = new ArrayList<>();
 		ImmutableSet<ClassInfo> immutableSetClass = ApplicationUtils.SINGLETON.getClassForPackage(str.toString());
 		for (ClassInfo classInfo : immutableSetClass) {
-			lstStringName.add(classInfo.getSimpleName());
+			if (classInfo.load().getAnnotation(Domain.class) != null) {
+				lstStringName.add(classInfo.getSimpleName());
+			}
 		}
 
 		return Response.ok(lstStringName).build();
@@ -73,7 +76,7 @@ public class GeneriqueRestService {
 		// Special case to build new resource from empty object to provide create view
 		if (parameters.containsKey(StandardUrlParameters.create.name())) {
 			List<T> listDmainOneItemEmpty = new ArrayList<>();
-			result = DtoMapper.SINGLETON.buildResourceFromDomain(listDmainOneItemEmpty, targetDomainClass);
+			result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(listDmainOneItemEmpty, targetDomainClass);
 		} else {
 			List<String> idParam = parameters.get(StandardUrlParameters.id.name());
 			IBusinessService<T> service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass);
@@ -81,7 +84,7 @@ public class GeneriqueRestService {
 			if (idParam != null && idParam.size() == 1) {
 				result = service.readById(idParam.get(0), targetDomainClass);
 			} else {
-				List<String> parentIdParam = parameters.get(StandardUrlParameters.parentId.name());
+				// List<String> parentIdParam = parameters.get(StandardUrlParameters.parentId.name());
 				// TODO
 				result = service.readAll(targetDomainClass);
 			}

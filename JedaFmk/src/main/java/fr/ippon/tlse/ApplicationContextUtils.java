@@ -28,11 +28,6 @@ public enum ApplicationContextUtils {
 	public Map<String, String> getParameters() {
 		Set<Entry<String, List<String>>> entryParams = ApplicationUtils.SINGLETON.getQueryParam().entrySet();
 
-		// Map<String, String> queryParam = new HashMap<>();
-		// for (Entry<String, List<String>> entry : entryParams) {
-		//
-		// }
-
 		return entryParams.stream().filter(entry -> !StandardUrlParameters.validParam(entry.getKey()))
 				.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().get(0)));
 	}
