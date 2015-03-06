@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import fr.ippon.tlse.annotation.AnnotationHandler;
 import fr.ippon.tlse.dto.utils.annotation.ConstraintSizeHandler;
 
 public class AnnotationManagedTest {

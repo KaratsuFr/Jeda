@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
+import fr.ippon.tlse.ApplicationContextUtils;
 import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.business.IBusinessService;
@@ -72,7 +73,7 @@ public class GeneriqueRestService {
 		}
 
 		ResourceDto result = null;
-		MultivaluedMap<String, String> parameters = ApplicationUtils.SINGLETON.getQueryParam();
+		MultivaluedMap<String, String> parameters = ApplicationContextUtils.SINGLETON.getQueryParam();
 		// Special case to build new resource from empty object to provide create view
 		if (parameters.containsKey(StandardUrlParameters.create.name())) {
 			List<T> listDmainOneItemEmpty = new ArrayList<>();

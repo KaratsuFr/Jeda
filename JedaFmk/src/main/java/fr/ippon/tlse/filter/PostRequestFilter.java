@@ -7,7 +7,7 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
-import fr.ippon.tlse.ApplicationUtils;
+import fr.ippon.tlse.ApplicationContextUtils;
 
 @Provider
 public class PostRequestFilter implements ContainerResponseFilter {
@@ -15,8 +15,8 @@ public class PostRequestFilter implements ContainerResponseFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
 			throws IOException {
-		ApplicationUtils.SINGLETON.getQueryParam().clear();
-		ApplicationUtils.SINGLETON.setCurrRestPath("");
+		ApplicationContextUtils.SINGLETON.getQueryParam().clear();
+		ApplicationContextUtils.SINGLETON.setCurrRestPath("");
 	}
 
 }

@@ -22,19 +22,19 @@ import fr.ippon.tlse.ApplicationContextUtils;
 @NoArgsConstructor
 public class MongoPersistenceManager<T> implements IPersistenceManager<T> {
 
-	private Jongo	jongo;
+	private Jongo			jongo;
 
 	@Setter
-	private DB		database;
+	private static DB		database;
 
 	@Setter
-	private String	host			= "localhost";
+	private static String	host			= "localhost";
 
 	@Setter
-	private int		port			= 27017;
+	private static int		port			= 27017;
 
 	@Setter
-	private String	databaseName	= "jedadb";
+	private static String	databaseName	= "jedadb";
 
 	@Override
 	public IPersistenceManager<T> configure() throws UnknownHostException {

@@ -8,7 +8,7 @@ import fr.ippon.tlse.persistence.MongoPersistenceManager;
 
 public class ApplicationConfigTest extends ApplicationConfig {
 
-	public ApplicationConfigTest() {
+	public ApplicationConfigTest() throws Exception {
 		super();
 		// register business Services
 		// key: the domain class bean
@@ -22,8 +22,10 @@ public class ApplicationConfigTest extends ApplicationConfig {
 		ApplicationUtils.SINGLETON.registerNewBusinessService(TuBasicDomain.class, new MockTuBasicBuniess());
 
 		DB db = new Fongo("Test").getDB("Database");
-		MongoPersistenceManager.setDatabase(db);
-		MongoPersistenceManager.setDatabaseName("Database");
+		MongoPersistenceManager<Object> mongoP = new MongoPersistenceManager<Object>();
+		mongoP.setDatabase(db);
+		mongoP.setDatabaseName("Database");
+		ApplicationUtils.SINGLETON.setDefaultPersistenceManager(mongoP);
 	}
 
 }

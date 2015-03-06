@@ -6,8 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import lombok.extern.slf4j.Slf4j;
+import fr.ippon.tlse.annotation.AnnotationHandler;
 import fr.ippon.tlse.dto.FieldDto;
-import fr.ippon.tlse.dto.utils.AnnotationHandler;
 
 @Slf4j
 public class GenericAnnoHandler implements AnnotationHandler {

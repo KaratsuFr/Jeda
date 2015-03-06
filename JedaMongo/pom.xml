@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>JedaMongo</artifactId>
+	<description>Mongo Persistence for Jeda</description>
+	<dependencies>
+		<dependency>
+			<groupId>fr.ippon.tlse</groupId>
+			<artifactId>JedaApi</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- MONGO -->
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>2.13.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jongo</groupId>
+			<artifactId>jongo</artifactId>
+			<!-- <version>1.2-early-20150210-0143</version> -->
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.fakemongo</groupId>
+			<artifactId>fongo</artifactId>
+			<version>1.6.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<parent>
+		<groupId>fr.ippon.tlse</groupId>
+		<artifactId>JedaParent</artifactId>
+		<relativePath>../JedaParent</relativePath>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+</project>

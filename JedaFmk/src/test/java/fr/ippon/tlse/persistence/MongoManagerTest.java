@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import com.github.fakemongo.Fongo;
 import com.mongodb.DB;
 
+import fr.ippon.tlse.ApplicationContextUtils;
 import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.domain.DomainWithAllType;
 import fr.ippon.tlse.domain.TuBasicDomain;
@@ -20,12 +21,15 @@ import fr.ippon.tlse.domain.sub1.TuBasicSub1Domain;
 public class MongoManagerTest {
 
 	@BeforeClass
-	public static void initDb() {
+	public static void initDb() throws Exception {
 
 		DB db = new Fongo("Test").getDB("Database");
-		MongoPersistenceManager.setDatabase(db);
-		MongoPersistenceManager.setDatabaseName("Database");
-		persistentManager = (MongoPersistenceManager) ApplicationUtils.SINGLETON
+		MongoPersistenceManager<Object> mongoP = new MongoPersistenceManager<Object>();
+		mongoP.setDatabase(db);
+		mongoP.setDatabaseName("Database");
+		ApplicationUtils.SINGLETON.setDefaultPersistenceManager(mongoP);
+
+		persistentManager = (MongoPersistenceManager<?>) ApplicationUtils.SINGLETON
 				.getPersistenceServiceForClass(TuBasicDomain.class);
 	}
 
@@ -95,7 +99,7 @@ public class MongoManagerTest {
 		String textToFind = "toto";
 		TuBasicDomain bean = new TuBasicDomain(textToFind, id);
 		persistentManager.saveOrUpdate(bean);
-		ApplicationUtils.SINGLETON.getQueryParam().add("text", textToFind);
+		ApplicationContextUtils.SINGLETON.getQueryParam().add("text", textToFind);
 		CursoWrapper<TuBasicDomain> data = persistentManager.searchFromContextCriteria(TuBasicDomain.class);
 		Assert.assertNotNull(data);
 		Assert.assertEquals(data.count(), 1);

@@ -4,10 +4,10 @@ import java.lang.annotation.Annotation;
 
 import javax.validation.constraints.Size;
 
+import fr.ippon.tlse.annotation.AnnotationHandler;
 import fr.ippon.tlse.annotation.AnnotationTypeHandler;
 import fr.ippon.tlse.dto.FieldDto;
 import fr.ippon.tlse.dto.KeyValueDto;
-import fr.ippon.tlse.dto.utils.AnnotationHandler;
 
 @AnnotationTypeHandler(annoClass = Size.class)
 public class ConstraintSizeHandler implements AnnotationHandler {

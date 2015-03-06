@@ -6,15 +6,15 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
 
-import fr.ippon.tlse.ApplicationUtils;
+import fr.ippon.tlse.ApplicationContextUtils;
 
 @Provider
 public class PreRequestFilter implements ContainerRequestFilter {
 
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		ApplicationUtils.SINGLETON.getQueryParam().putAll(requestContext.getUriInfo().getQueryParameters());
-		ApplicationUtils.SINGLETON.setCurrRestPath(requestContext.getUriInfo().getPath().toString());
+		ApplicationContextUtils.SINGLETON.getQueryParam().putAll(requestContext.getUriInfo().getQueryParameters());
+		ApplicationContextUtils.SINGLETON.setCurrRestPath(requestContext.getUriInfo().getPath().toString());
 
 	}
 

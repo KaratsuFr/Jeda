@@ -14,10 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import fr.ippon.tlse.ApplicationUtils;
+import fr.ippon.tlse.ApplicationConfig;
 import fr.ippon.tlse.domain.DomainWithAllType;
 import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.dto.FieldDto;
@@ -26,6 +27,11 @@ import fr.ippon.tlse.dto.ValueDto;
 
 @Slf4j
 public class DtoMapperTest {
+
+	@BeforeClass
+	public static void init() {
+		ApplicationConfig.initMapperJackson();
+	}
 
 	@DataProvider
 	public Object[][] lstDomainValid() {
@@ -124,8 +130,8 @@ public class DtoMapperTest {
 	public <T> void testResource2DomainReverse(List<T> lstDomain, Class<T> type) throws IOException {
 		ResourceDto result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomain, type);
 
-		String jsonResourceDto = ApplicationUtils.SINGLETON.getMapper().writeValueAsString(result);
-		ResourceDto r2 = ApplicationUtils.SINGLETON.getMapper().readValue(jsonResourceDto, result.getClass());
+		String jsonResourceDto = ApplicationConfig.getMapper().writeValueAsString(result);
+		ResourceDto r2 = ApplicationConfig.getMapper().readValue(jsonResourceDto, result.getClass());
 
 		List<?> lstDomainResul = Resource2DomainMapper.SINGLETON.buildLstDomainFromResource(r2, lstDomain.get(0)
 				.getClass());

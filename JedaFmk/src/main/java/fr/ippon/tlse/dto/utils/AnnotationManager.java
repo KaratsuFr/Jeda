@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
 import fr.ippon.tlse.ApplicationUtils;
+import fr.ippon.tlse.annotation.AnnotationHandler;
 import fr.ippon.tlse.annotation.AnnotationTypeHandler;
 import fr.ippon.tlse.dto.exception.ErrorCode;
 import fr.ippon.tlse.dto.exception.JedaException;

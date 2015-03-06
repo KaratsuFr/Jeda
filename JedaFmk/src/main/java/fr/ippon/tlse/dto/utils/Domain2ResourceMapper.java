@@ -30,6 +30,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import fr.ippon.tlse.ApplicationUtils;
+import fr.ippon.tlse.annotation.AnnotationHandler;
 import fr.ippon.tlse.annotation.Description;
 import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.annotation.Embended;

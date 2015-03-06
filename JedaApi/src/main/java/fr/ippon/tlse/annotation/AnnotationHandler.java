@@ -1,4 +1,4 @@
-package fr.ippon.tlse.dto.utils;
+package fr.ippon.tlse.annotation;
 
 import java.lang.annotation.Annotation;
 
