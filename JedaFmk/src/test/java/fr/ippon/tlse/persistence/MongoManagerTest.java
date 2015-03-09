@@ -18,6 +18,7 @@ import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.domain.sub1.TuBasicSub1Domain;
 
 @Slf4j
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class MongoManagerTest {
 
 	@BeforeClass

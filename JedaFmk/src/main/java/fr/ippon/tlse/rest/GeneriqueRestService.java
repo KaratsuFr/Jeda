@@ -1,6 +1,7 @@
 package fr.ippon.tlse.rest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -30,6 +31,8 @@ import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.dto.ResourceDto;
 import fr.ippon.tlse.dto.utils.Domain2ResourceMapper;
+import fr.ippon.tlse.dto.utils.Resource2DomainMapper;
+import fr.ippon.tlse.persistence.CursoWrapper;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -83,11 +86,27 @@ public class GeneriqueRestService {
 			IBusinessService<T> service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass);
 
 			if (idParam != null && idParam.size() == 1) {
-				result = service.readById(idParam.get(0), targetDomainClass);
+
+				T bean = service.readById(idParam.get(0), targetDomainClass);
+				if (bean != null) {
+					List<T> lstDomainObj = Arrays.asList(bean);
+					result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, targetDomainClass);
+
+				}
+				if (result == null || result.getTotalNbResult() == 0) {
+					return Response.status(Status.NO_CONTENT).entity(result).build();
+				}
+
 			} else {
 				// List<String> parentIdParam = parameters.get(StandardUrlParameters.parentId.name());
 				// TODO
-				result = service.readAll(targetDomainClass);
+				CursoWrapper<T> cursor = service.readAll(targetDomainClass);
+				List<T> lstDomainObj = new ArrayList<>();
+				while (cursor.hasNext()) {
+					lstDomainObj.add(cursor.next());
+				}
+				result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, targetDomainClass);
+				result.setTotalNbResult(cursor.count());
 			}
 		}
 
@@ -112,7 +131,11 @@ public class GeneriqueRestService {
 		}
 
 		IBusinessService<T> service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass);
-		ResourceDto resourcePersisted = service.createOrUpdate(resourceToUp, targetDomainClass);
+		List<T> lstDomainObj = Resource2DomainMapper.SINGLETON.buildLstDomainFromResource(resourceToUp,
+				targetDomainClass);
+		List<T> lstDomainObjPersisted = service.createOrUpdate(lstDomainObj, targetDomainClass);
+		ResourceDto resourcePersisted = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObjPersisted,
+				targetDomainClass);
 		return Response.ok().entity(resourcePersisted).build();
 	}
 }

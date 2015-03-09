@@ -38,7 +38,7 @@ angular.module(
                 // TODO USE SERVICE
                 var id = $route.current.params.id;
                 var params = "";
-                if (id == undefined || id == "") {
+                if (id == undefined || id == null) {
                   params = "?create";
                 } else {
                   params = "?id=" + id;

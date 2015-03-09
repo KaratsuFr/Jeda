@@ -30,7 +30,6 @@ public class DtoMapperTest {
 
 	@BeforeClass
 	public static void init() {
-		ApplicationConfig.initMapperJackson();
 	}
 
 	@DataProvider

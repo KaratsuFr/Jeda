@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@ToString(exclude = "embendedType")
+@EqualsAndHashCode(exclude = "embendedType")
 public class FieldDto {
 	private int					order				= -1;
 	private String				groupName			= "default";
@@ -17,7 +21,9 @@ public class FieldDto {
 	private String				label;
 	private String				description;
 	private String				javaType;
+
 	private String				jsType;
+	private List<FieldDto>		embendedType;
 
 	private String				fieldName;
 	private boolean				searchInvert		= false;

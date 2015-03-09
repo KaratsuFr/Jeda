@@ -15,6 +15,7 @@ import fr.ippon.tlse.annotation.Description;
 import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.annotation.Id;
 import fr.ippon.tlse.annotation.Label;
+import fr.ippon.tlse.annotation.Order;
 
 @Data
 @Description("basic domain bean for test")
@@ -34,6 +35,7 @@ public class TuBasicDomain {
 	@Min(0)
 	@Label("label.TuBasicDomain.numero")
 	@Id
+	@Order(1)
 	private Integer	num	= null;
 
 }

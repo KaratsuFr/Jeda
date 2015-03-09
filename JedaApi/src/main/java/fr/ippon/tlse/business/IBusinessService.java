@@ -1,16 +1,19 @@
 package fr.ippon.tlse.business;
 
+import java.util.List;
+
 import fr.ippon.tlse.dto.ResourceDto;
+import fr.ippon.tlse.persistence.CursoWrapper;
 
 public interface IBusinessService<T> {
 
-	ResourceDto readAll(Class<T> domainClass);
+	CursoWrapper<T> readAll(Class<T> domainClass);
 
-	ResourceDto searchByCriteria(ResourceDto resource, Class<T> domainClass);
+	CursoWrapper<T> searchByCriteria(ResourceDto resource, Class<T> domainClass);
 
-	ResourceDto readById(String id, Class<T> domainClass);
+	T readById(String id, Class<T> domainClass);
 
-	ResourceDto createOrUpdate(ResourceDto resource, Class<T> domainClass);
+	List<T> createOrUpdate(List<T> lstDomain, Class<T> domainClass);
 
 	boolean deleteById(String id, Class<T> domainClass);
 

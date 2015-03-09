@@ -12,7 +12,14 @@ import org.jongo.Find;
 import org.jongo.FindOne;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
+import org.jongo.marshall.jackson.JacksonMapper;
+import org.jongo.marshall.jackson.JacksonMapper.Builder;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteResult;
@@ -22,26 +29,34 @@ import fr.ippon.tlse.ApplicationContextUtils;
 @NoArgsConstructor
 public class MongoPersistenceManager<T> implements IPersistenceManager<T> {
 
-	private Jongo			jongo;
+	private Jongo	jongo;
 
 	@Setter
-	private static DB		database;
+	private DB		database;
 
 	@Setter
-	private static String	host			= "localhost";
+	private String	host			= "localhost";
 
 	@Setter
-	private static int		port			= 27017;
+	private int		port			= 27017;
 
 	@Setter
-	private static String	databaseName	= "jedadb";
+	private String	databaseName	= "jedadb";
 
 	@Override
 	public IPersistenceManager<T> configure() throws UnknownHostException {
 		if (database == null) {
 			database = new MongoClient(host, port).getDB(databaseName);
 		}
-		jongo = new Jongo(database);
+
+		Builder tmpMapper = new JacksonMapper.Builder();
+		for (Module module : ObjectMapper.findModules()) {
+			tmpMapper.registerModule(module);
+		}
+		tmpMapper.enable(MapperFeature.AUTO_DETECT_GETTERS);
+
+		tmpMapper.registerModule(new JSR310Module()).registerModule(new Jdk8Module());
+		jongo = new Jongo(database, tmpMapper.build());
 		return this;
 	}
 

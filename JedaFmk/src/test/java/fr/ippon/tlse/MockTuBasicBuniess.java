@@ -9,8 +9,8 @@ import java.util.UUID;
 import fr.ippon.tlse.business.IBusinessService;
 import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.dto.ResourceDto;
-import fr.ippon.tlse.dto.utils.Domain2ResourceMapper;
-import fr.ippon.tlse.dto.utils.Resource2DomainMapper;
+import fr.ippon.tlse.persistence.CursoWrapper;
+import fr.ippon.tlse.persistence.CursoWrapperList;
 
 public class MockTuBasicBuniess implements IBusinessService<TuBasicDomain> {
 
@@ -23,39 +23,32 @@ public class MockTuBasicBuniess implements IBusinessService<TuBasicDomain> {
 	}
 
 	@Override
-	public ResourceDto readAll(Class<TuBasicDomain> domainClass) {
-		ApplicationUtils.SINGLETON.resetCacheClass();
-		Domain2ResourceMapper.SINGLETON.resetCache();
-		return Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(
-				new ArrayList<TuBasicDomain>(mockPersistance.values()), domainClass);
+	public CursoWrapper<TuBasicDomain> readAll(Class<TuBasicDomain> domainClass) {
+		CursoWrapper<TuBasicDomain> cur = new CursoWrapperList<>(new ArrayList<TuBasicDomain>(mockPersistance.values()));
+		return cur;
 	}
 
 	@Override
-	public ResourceDto searchByCriteria(ResourceDto resource, Class<TuBasicDomain> domainClass) {
+	public CursoWrapper<TuBasicDomain> searchByCriteria(ResourceDto resource, Class<TuBasicDomain> domainClass) {
 		return null;
 	}
 
 	@Override
-	public ResourceDto readById(String id, Class<TuBasicDomain> domainClass) {
+	public TuBasicDomain readById(String id, Class<TuBasicDomain> domainClass) {
 		TuBasicDomain dom = mockPersistance.get(id);
-
-		ArrayList<TuBasicDomain> lstResult = new ArrayList<>();
-		lstResult.add(dom);
-		return Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstResult, domainClass);
+		return dom;
 	}
 
 	@Override
-	public ResourceDto createOrUpdate(ResourceDto resource, Class<TuBasicDomain> domainClass) {
-		List<TuBasicDomain> lstDomain = Resource2DomainMapper.SINGLETON.buildLstDomainFromResource(resource,
-				TuBasicDomain.class);
+	public List<TuBasicDomain> createOrUpdate(List<TuBasicDomain> lstDomain, Class<TuBasicDomain> domainClass) {
+
 		for (TuBasicDomain tuBasicDomain : lstDomain) {
 			if (tuBasicDomain.getNum() == null) {
 				tuBasicDomain.setNum(mockPersistance.size());
 			}
 			mockPersistance.put("" + tuBasicDomain.getNum(), tuBasicDomain);
-
 		}
-		return resource;
+		return lstDomain;
 	}
 
 	@Override

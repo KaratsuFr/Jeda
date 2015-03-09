@@ -14,8 +14,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,7 +26,6 @@ import fr.ippon.tlse.dto.ValueDto;
 import fr.ippon.tlse.dto.exception.ErrorCode;
 import fr.ippon.tlse.dto.exception.JedaException;
 
-@Slf4j
 public enum Resource2DomainMapper {
 	SINGLETON;
 

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -54,7 +55,8 @@ public enum Domain2ResourceMapper {
 																					{
 																						@Override
 																						public List<FieldDto> load(
-																								Class<?> classObject) {
+																								Class<?> classObject)
+																								throws JsonProcessingException {
 																							return buildFieldInfo(classObject);
 																						}
 																					});
@@ -100,51 +102,18 @@ public enum Domain2ResourceMapper {
 
 				List<FieldDto> lstFieldDto = res.getLstFieldInfo();
 				List<ValueDto> lstValue = new ArrayList<>();
-				for (FieldDto fieldDto : lstFieldDto) {
-					Field field = object.getClass().getDeclaredField(fieldDto.getFieldName());
-					field.setAccessible(true);
-
-					// save index of id column
-					if (fieldDto.isId()) {
-						res.setPositionOfId(lstValue.size());
-
-					}
-					ValueDto vDto = new ValueDto();
-					// Collection or Domain object are not mapped by default need @Embended
-					if (Collection.class.isAssignableFrom(field.getType())) {
-						Embended annoEmbended = field.getAnnotation(Embended.class);
-						if (annoEmbended == null || annoEmbended.value() == false) {
-							vDto.setUrlResourceMapping(field.getType().getSimpleName());
-						} else {
-							vDto.setValue(field.get(object));
+				if (object != null) {
+					for (FieldDto fieldDto : lstFieldDto) {
+						Field field = object.getClass().getDeclaredField(fieldDto.getFieldName());
+						field.setAccessible(true);
+						// save index of id column
+						if (fieldDto.isId()) {
+							res.setPositionOfId(lstValue.size());
 						}
-					} else if (StringUtils.startsWith(fieldDto.getJavaType(),
-							ApplicationUtils.SINGLETON.getDomainPackage())
-							|| StringUtils.startsWith(fieldDto.getJavaType(),
-									ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
-						Embended annoEmbended = field.getAnnotation(Embended.class);
-						if (annoEmbended == null || annoEmbended.value() == false) {
-							String id = findIdOfTargetValue(field);
-							vDto.setUrlResourceMapping(String.format("%s?id=%s", field.getType().getSimpleName(), id));
-						} else {
-							vDto.setValue(field.get(object));
-						}
-					} else if (field.getType().isEnum()) {
-						throw new NotSupportedException("Enum on Domain bean are not supported!");
-					} else if (Map.class.isAssignableFrom(field.getType())) {
-						throw new NotSupportedException("Map on Domain bean are not supported!");
-					} else if (StringUtils.startsWith(fieldDto.getJavaType(), "java.")) {
-						vDto.setValue(field.get(object));
-					} else if (StringUtils.equals(ObjectId.class.getName(), fieldDto.getJavaType())) {
-						ObjectId objId = (ObjectId) field.get(object);
-
-						vDto.setValue(objId);
-					} else {
-						throw new NotSupportedException(field.getType().getSimpleName()
-								+ " on Domain bean are not supported!");
+						ValueDto vDto = buildValueDto(object, fieldDto, field);
+						indexFielInfo.put(field.getName(), vDto);
+						lstValue.add(vDto);
 					}
-					indexFielInfo.put(field.getName(), vDto);
-					lstValue.add(vDto);
 				}
 				res.getLstValues().add(lstValue);
 				res.setTotalNbResult(lstValue.size());
@@ -162,8 +131,6 @@ public enum Domain2ResourceMapper {
 					}
 				}
 
-				// FIXME 6 sort data by group and order
-
 			}
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			// can't happen : introspection wins
@@ -175,6 +142,40 @@ public enum Domain2ResourceMapper {
 		return res;
 	}
 
+	private ValueDto buildValueDto(Object object, FieldDto fieldDto, Field field) throws IllegalAccessException {
+		ValueDto vDto = new ValueDto();
+		// Collection or Domain object are not mapped by default need @Embended
+		if (Collection.class.isAssignableFrom(field.getType())) {
+			Embended annoEmbended = field.getAnnotation(Embended.class);
+			if (annoEmbended == null || annoEmbended.value() == false) {
+				vDto.setUrlResourceMapping(field.getType().getSimpleName());
+			} else {
+				vDto.setValue(field.get(object));
+			}
+		} else if (StringUtils.startsWith(fieldDto.getJavaType(), ApplicationUtils.SINGLETON.getDomainPackage())
+				|| StringUtils.startsWith(fieldDto.getJavaType(), ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
+			Embended annoEmbended = field.getAnnotation(Embended.class);
+			if (annoEmbended == null || annoEmbended.value() == false) {
+				String id = findIdOfTargetValue(field);
+				vDto.setUrlResourceMapping(String.format("%s?id=%s", field.getType().getSimpleName(), id));
+			} else {
+				vDto.setValue(field.get(object));
+			}
+		} else if (field.getType().isEnum()) {
+			throw new NotSupportedException("Enum on Domain bean are not supported!");
+		} else if (Map.class.isAssignableFrom(field.getType())) {
+			throw new NotSupportedException("Map on Domain bean are not supported!");
+		} else if (StringUtils.startsWith(fieldDto.getJavaType(), "java.")) {
+			vDto.setValue(field.get(object));
+		} else if (StringUtils.equals(ObjectId.class.getName(), fieldDto.getJavaType())) {
+			ObjectId objId = (ObjectId) field.get(object);
+			vDto.setValue(objId);
+		} else {
+			throw new NotSupportedException(field.getType().getSimpleName() + " on Domain bean are not supported!");
+		}
+		return vDto;
+	}
+
 	private String findIdOfTargetValue(Field field) {
 		// FIXME TODO
 		return "";
@@ -182,7 +183,7 @@ public enum Domain2ResourceMapper {
 
 	private GenericAnnoHandler	genericAnnoH	= new GenericAnnoHandler();
 
-	private <T> List<FieldDto> buildFieldInfo(Class<T> domainClass) {
+	private <T> List<FieldDto> buildFieldInfo(Class<T> domainClass) throws JsonProcessingException {
 		log.trace("buildFieldInfo for class {}", domainClass);
 
 		List<FieldDto> lstField = new ArrayList<FieldDto>();
@@ -225,9 +226,7 @@ public enum Domain2ResourceMapper {
 						default:
 							throw new JedaException(ErrorCode.TO_BE_DEFINE, "Unmanaged primitive type: " + primType);
 					}
-				} else if (Collection.class.isAssignableFrom(field.getType())
-						|| Map.class.isAssignableFrom(field.getType())) {
-
+				} else if (Collection.class.isAssignableFrom(field.getType())) {
 					Type type = field.getGenericType();
 					if (type instanceof ParameterizedType) {
 						javaType = ((ParameterizedType) type).getActualTypeArguments()[0].getClass();
@@ -250,7 +249,18 @@ public enum Domain2ResourceMapper {
 						fieldDto = genericAnnoH.handleAnnotation(annotation, fieldDto);
 					}
 				}
+
 				fieldDto.setJsType(ConvertJs2JavaType.getJsTypeFromClass(javaType));
+				Embended annoEmbended = field.getAnnotation(Embended.class);
+				if (annoEmbended != null && annoEmbended.value()) {
+					// domain bean only can embended
+					if (StringUtils.contains(javaType.getName(), ApplicationUtils.SINGLETON.getCustomDomainPackage())
+							|| StringUtils.contains(javaType.getName(), ApplicationUtils.SINGLETON.getDomainPackage())) {
+
+						List<FieldDto> lstFieldDto = buildFieldInfo(javaType);
+						fieldDto.setEmbendedType(lstFieldDto);
+					}
+				}
 				setOrderReserved.add(fieldDto.getOrder());
 				lstField.add(fieldDto);
 			}
