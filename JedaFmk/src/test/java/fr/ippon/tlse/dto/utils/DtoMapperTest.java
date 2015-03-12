@@ -127,7 +127,7 @@ public class DtoMapperTest {
 
 	@Test(dataProvider = "lstDomainValid")
 	public <T> void testResource2DomainReverse(List<T> lstDomain, Class<T> type) throws IOException {
-		ResourceDto result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomain, type);
+		ResourceDto result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomain, type, true);
 
 		String jsonResourceDto = ApplicationConfig.getMapper().writeValueAsString(result);
 		ResourceDto r2 = ApplicationConfig.getMapper().readValue(jsonResourceDto, result.getClass());
@@ -146,7 +146,7 @@ public class DtoMapperTest {
 	@Test(dataProvider = "lstDomainValid")
 	public <T> void buildResourceFromDomain(List<T> lstDomain, Class<T> type) {
 		log.info("test buildResourceFromDomain with {}", lstDomain.toString());
-		ResourceDto result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomain, type);
+		ResourceDto result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomain, type, false);
 		Assert.assertNotNull(result);
 		log.info(result.toString());
 		Assert.assertNotNull(result.getLstFieldInfo());
@@ -178,7 +178,7 @@ public class DtoMapperTest {
 	@Test(dataProvider = "lstDomainInvalid")
 	public <T> void buildResourceFromDomainError(List<T> lstDomain, Class<T> type) {
 		log.info("test buildResourceFromDomain with {}", lstDomain.toString());
-		ResourceDto result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomain, type);
+		ResourceDto result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomain, type, true);
 		Assert.assertNotNull(result);
 		log.info(result.toString());
 		Assert.assertNotNull(result.getLstFieldInfo());

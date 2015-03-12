@@ -14,6 +14,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -53,7 +56,7 @@ public enum Resource2DomainMapper {
 					ValueDto valDto = lstValueField.get(i);
 					if (valDto.getErrorCode() != null) {
 						throw new JedaException(ErrorCode.TO_BE_DEFINE,
-								"Invalid resource Object, it should not contain Error.");
+								"Invalid resource Object, it should not contain Error:" + valDto.getErrorCode());
 					}
 					Field f = targetClass.getDeclaredField(fieldDto.getFieldName());
 					f.setAccessible(true);
@@ -89,8 +92,11 @@ public enum Resource2DomainMapper {
 					"Resource [%s] to Domain impossible, fieldInfo doesn't match target %s", resource, targetClass), e);
 
 		}
+		validator.validate(lstDomain);
 		return lstDomain;
 	}
+
+	private Validator	validator	= Validation.buildDefaultValidatorFactory().getValidator();
 
 	private <Z> Object convertMapTypeToSpecific(Object genericVal, String targetClass, FieldDto fDto, ValueDto valDto,
 			Field f) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,

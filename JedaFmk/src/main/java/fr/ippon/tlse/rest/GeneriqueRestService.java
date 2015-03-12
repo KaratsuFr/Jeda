@@ -64,7 +64,8 @@ public class GeneriqueRestService {
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/entity/{entity:.*}")
-	public <T> Response getAnyEntity(@PathParam("entity") String anyEntity) {
+	public <T> Response getAnyEntity(@PathParam("entity") String anyEntity) throws InstantiationException,
+			IllegalAccessException {
 
 		String hierachicalClassName = anyEntity.replace("/", ".");
 		Class<T> targetDomainClass = null;
@@ -80,7 +81,11 @@ public class GeneriqueRestService {
 		// Special case to build new resource from empty object to provide create view
 		if (parameters.containsKey(StandardUrlParameters.create.name())) {
 			List<T> listDmainOneItemEmpty = new ArrayList<>();
-			result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(listDmainOneItemEmpty, targetDomainClass);
+			T defaultDomainBean = targetDomainClass.newInstance();
+			// TODO call init method
+			listDmainOneItemEmpty.add(defaultDomainBean);
+			result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(listDmainOneItemEmpty, targetDomainClass,
+					false);
 		} else {
 			List<String> idParam = parameters.get(StandardUrlParameters.id.name());
 			IBusinessService<T> service = ApplicationUtils.SINGLETON.getBusinessServiceForClass(targetDomainClass);
@@ -90,7 +95,8 @@ public class GeneriqueRestService {
 				T bean = service.readById(idParam.get(0), targetDomainClass);
 				if (bean != null) {
 					List<T> lstDomainObj = Arrays.asList(bean);
-					result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, targetDomainClass);
+					result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, targetDomainClass,
+							true);
 
 				}
 				if (result == null || result.getTotalNbResult() == 0) {
@@ -105,7 +111,8 @@ public class GeneriqueRestService {
 				while (cursor.hasNext()) {
 					lstDomainObj.add(cursor.next());
 				}
-				result = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, targetDomainClass);
+				result = Domain2ResourceMapper.SINGLETON
+						.buildResourceFromDomain(lstDomainObj, targetDomainClass, false);
 				result.setTotalNbResult(cursor.count());
 			}
 		}
@@ -135,7 +142,7 @@ public class GeneriqueRestService {
 				targetDomainClass);
 		List<T> lstDomainObjPersisted = service.createOrUpdate(lstDomainObj, targetDomainClass);
 		ResourceDto resourcePersisted = Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObjPersisted,
-				targetDomainClass);
+				targetDomainClass, true);
 		return Response.ok().entity(resourcePersisted).build();
 	}
 }

@@ -5,7 +5,8 @@ import java.util.Map;
 
 public enum ConvertJs2JavaType {
 
-	TEXT(String.class, "text"), BOOL(Boolean.class, "checkbox"), Date(java.util.Date.class, "date");
+	TEXT(String.class, "text"), BOOL(Boolean.class, "checkbox"), DATE(java.util.Date.class, "date"), NUMBER(
+			Number.class, "number");
 
 	private Class<?>						javaClass;
 
@@ -33,12 +34,16 @@ public enum ConvertJs2JavaType {
 
 	public static String getJsTypeFromClass(Class<?> javaClass) {
 		initMapConvert();
-		return mapJavaToJs.get(javaClass);
+		Class<?> searchClass = javaClass;
+		if (Number.class.isAssignableFrom(searchClass)) {
+			searchClass = Number.class;
+		}
+		return mapJavaToJs.get(searchClass);
 	}
 
-	public static Class<?> getJavaTypeFromJsType(String jsType) {
-		initMapConvert();
-		return mapJsToJava.get(jsType);
-	}
+	// public static Class<?> getJavaTypeFromJsType(String jsType) {
+	// initMapConvert();
+	// return mapJsToJava.get(jsType);
+	// }
 
 }

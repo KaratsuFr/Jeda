@@ -1,12 +1,21 @@
 <p>This is the read & edit view for {{currBean}}</p>
 
-<div
-	class="row"
-	ng-repeat="fieldInfo in resource.lstFieldInfo track by $index">
-	<label
-		class="control-label"
-		translate="{{fieldInfo.label}}"></label> <input
-		type="{{fieldInfo.jsType}}"
-		class="form-control"
-		ng-model="resource.lstValues[0][$index].value"></input>
-</div>
+<form>
+	<div
+		class="form-group"
+		ng-repeat="fieldInfo in resource.lstFieldInfo track by $index">
+		<label
+			class="control-label"
+			translate="{{fieldInfo.label}}"></label> <input
+			type="{{fieldInfo.jsType}}"
+			ng-class="fieldInfo.jsType != 'checkbox' ? 'form-control' :'' "
+			ng-model="resource.lstValues[0][$index].value"></input>
+	</div>
+	<button type="button"
+		class="btn btn-default" translate="label.jeda.back" ng-click="back()"></button>
+	<button
+		type="submit"
+		class="btn btn-default" translate="label.jeda.update" ng-click="createOrUpdate(resource)"></button>
+
+</form>
+{{resource.lstValues[0]}}

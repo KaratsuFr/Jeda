@@ -65,8 +65,9 @@ public enum Domain2ResourceMapper {
 		cacheClassToFieldDto.invalidateAll();
 	}
 
-	public <T> ResourceDto buildResourceFromDomain(List<T> lstDomainValues, Class<T> targetClass) {
-		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	private Validator	validator	= Validation.buildDefaultValidatorFactory().getValidator();
+
+	public <T> ResourceDto buildResourceFromDomain(List<T> lstDomainValues, Class<T> targetClass, boolean validation) {
 
 		Class<T> classOfItemInList = targetClass;
 		// 1 check package lstDomainValues
@@ -118,16 +119,18 @@ public enum Domain2ResourceMapper {
 				res.getLstValues().add(lstValue);
 				res.setTotalNbResult(lstValue.size());
 				// 5 finally check validation error on object
-				Set<ConstraintViolation<Object>> setConstraintViolations = validator.validate(object);
-				for (ConstraintViolation<Object> constraintViolation : setConstraintViolations) {
-					String propPath = constraintViolation.getPropertyPath().toString();
-					ValueDto valDto = indexFielInfo.get(propPath);
+				if (validation) {
+					Set<ConstraintViolation<Object>> setConstraintViolations = validator.validate(object);
+					for (ConstraintViolation<Object> constraintViolation : setConstraintViolations) {
+						String propPath = constraintViolation.getPropertyPath().toString();
+						ValueDto valDto = indexFielInfo.get(propPath);
 
-					// if propPath match indeFielInfo : the constraint match a field of the object .. we set the error to corresponding value position
-					if (valDto != null) {
-						valDto.setErrorCode(constraintViolation.getMessage());
-					} else {
-						res.getLstErrorCodes().add(constraintViolation.getMessage());
+						// if propPath match indeFielInfo : the constraint match a field of the object .. we set the error to corresponding value position
+						if (valDto != null) {
+							valDto.setErrorCode(constraintViolation.getMessage());
+						} else {
+							res.getLstErrorCodes().add(constraintViolation.getMessage());
+						}
 					}
 				}
 
