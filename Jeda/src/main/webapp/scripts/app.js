@@ -26,7 +26,8 @@ angular.module(
             templateUrl: 'views/search.html',
             controller: 'SearchCtrl',
             resolve: {
-              resolvedSearchBean: ['$http', '$route', '$log', function($http, $route, $log) {
+              resolvedSearchBean: ['$http', '$route', '$log', '$rootScope', function($http, $route, $log, $rootScope) {
+                // return $http.get($rootScope.resourceLinkInPage[$route.current.params.beanName]);
                 // TODO USE SERVICE
                 return $http.get('rest/entity/' + $route.current.params.beanName);
               }]
@@ -74,7 +75,36 @@ angular.module(
 
           $rootScope.goToListForBean = function(beanName) {
             $location.path('/' + beanName + '/search');
-          }
+          };
+
+          /*
+           * parse_link_header()
+           * 
+           * Parse the Github Link HTTP header used for pageination http://developer.github.com/v3/#pagination
+           */
+          var parse_link_header = function(header) {
+            if (header.length == 0) { throw new Error("input must not be of zero length"); }
+
+            // Split parts by comma
+            var parts = header.split(',');
+            var links = {};
+            // Parse each part into a named link
+            angular.forEach(parts, function(p) {
+              var section = p.split(';');
+              if (section.length != 2) { throw new Error("section could not be split on ';'"); }
+              var url = section[0].replace(/<(.*)>/, '$1').trim();
+              var name = section[1].replace(/rel="(.*)"/, '$1').trim();
+              links[name] = url;
+            });
+
+            return links;
+          };
+
+          $rootScope.resourceLinkInPage = {};
+          $rootScope.grabLinkHeader = function(headers) {
+            // $log.debug(headers);
+            $rootScope.resourceLinkInPage = parse_link_header(headers('link'));
+          };
 
           $rootScope.viewBean = function(beanId) {
             $location.path('/' + $routeParams.beanName + '/edit').search({
@@ -92,8 +122,8 @@ angular.module(
               var targetDest = $rootScope.tabBreadcrumb[$rootScope.tabBreadcrumb.length - 2].href;
               targetDest = targetDest.substring(1, targetDest.length);
             }
-            $log.debug("back go to:", targetDest, $rootScope.tabBreadcrumb);
-            $location.path(targetDest);
+            // $log.debug("back go to:", targetDest, $rootScope.tabBreadcrumb);
+            $location.path(targetDest).reload();
           }
 
           $rootScope.createBean = function() {
@@ -109,14 +139,14 @@ angular.module(
             }).error(function(data, status) {
               growl.error("label.jeda.save.ko");
             });
-          }
+          };
 
           $rootScope.$on("$routeChangeSuccess", function(data, route, routeParams) {
             $rootScope.currBean = route.params.beanName;
 
             // build tabBreadcrumb [{href:"/Bean/search..",label:""}]
 
-            $log.debug("$routeChangeSuccess", $location, route, routeParams);
+            // $log.debug("$routeChangeSuccess", $location, route, routeParams);
             var path = $location.path();
             var tabPath = path.split("/");
             $rootScope.tabBreadcrumb = [{}];
@@ -148,20 +178,19 @@ angular.module(
                 "href": currHref,
                 "label": currPath,
               }
-              
-              
+
               if (tabPath.length == (index + 1)) {
                 breadC["class"] = "active";
                 breadC["href"] = null;
               }
 
               $rootScope.tabBreadcrumb.push(breadC);
-              
+
               // if last is search remove pop 1 item
-              if (tabPath.length == (index + 1) && breadC.label== 'search') {
+              if (tabPath.length == (index + 1) && breadC.label == 'search') {
                 $rootScope.tabBreadcrumb.pop();
                 var lastSearchBreadC = $rootScope.tabBreadcrumb.pop();
-                lastSearchBreadC.href=null;
+                lastSearchBreadC.href = null;
                 lastSearchBreadC["class"] = "active";
                 $rootScope.tabBreadcrumb.push(lastSearchBreadC);
 
@@ -169,8 +198,21 @@ angular.module(
             }
           });
 
-          $rootScope.$on("$routeChangeError", function($route) {
+          $rootScope.$on("jedaError", function(event, infos) {
+            $log.debug("jedaError",infos);
+            growl.error("" + infos.message, {title: infos.title});
+          });
+
+          $rootScope.$on("$routeChangeError", function(event, current, previous, rejection) {
+            $log.debug(event, current, previous, rejection);
+            if (rejection.data.message != undefined) {
+              growl.error(rejection.data.message, {
+                title: "label.jeda.invalid.path"
+              });
+            } else {
+              growl.error("label.jeda.invalid.path");
+            }
             $location.url($location.path());
-            $location.path('/');
+            $location.path('/').replace();
           });
         });

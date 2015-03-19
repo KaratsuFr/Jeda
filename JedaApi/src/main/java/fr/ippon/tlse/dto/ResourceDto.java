@@ -7,24 +7,39 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.JsonNode;
+
 @Data
 public class ResourceDto {
 
 	@NotNull
-	private String					label;
+	private String			label;
 
-	private String					description;
+	private String			description;
 
-	private int						positionOfId	= -1;
+	private int				positionOfId	= -1;
 
-	private int						totalNbResult;
+	private int				totalNbResult;
 
 	@NotNull
-	private String					className;
+	private String			className;
 
-	private List<FieldDto>			lstFieldInfo	= new ArrayList<>();
+	private List<FieldDto>	lstFieldInfo	= new ArrayList<>();
 
-	private List<List<ValueDto>>	lstValues		= new ArrayList<>();
+	private Object			lstDomain;
 
-	private List<String>			lstErrorCodes	= new ArrayList<>();
+	@JsonRawValue
+	public String getLstDomain() {
+		// default raw value: null or "[]"
+		return lstDomain == null ? null : lstDomain.toString();
+	}
+
+	public void setLstDomain(JsonNode node) {
+		lstDomain = node;
+	}
+
+	// private List<List<ValueDto>> lstValues = new ArrayList<>();
+
+	private List<String>	lstErrorCodes	= new ArrayList<>();
 }

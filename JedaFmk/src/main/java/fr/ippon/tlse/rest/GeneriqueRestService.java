@@ -1,5 +1,6 @@
 package fr.ippon.tlse.rest;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,14 +14,20 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jboss.resteasy.annotations.GZIP;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath.ClassInfo;
@@ -38,7 +45,13 @@ import fr.ippon.tlse.persistence.CursoWrapper;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Slf4j
+@NoCache
+@GZIP
 public class GeneriqueRestService {
+
+	@Context
+	@Setter
+	private UriInfo	uriInfo;
 
 	@GET
 	@Path("/app")
@@ -50,14 +63,39 @@ public class GeneriqueRestService {
 		}
 		log.debug("Looking for class in package {}", str);
 		List<String> lstStringName = new ArrayList<>();
+
+		List<Link> lstLinks = new ArrayList<>();
+
 		ImmutableSet<ClassInfo> immutableSetClass = ApplicationUtils.SINGLETON.getClassForPackage(str.toString());
 		for (ClassInfo classInfo : immutableSetClass) {
-			if (classInfo.load().getAnnotation(Domain.class) != null) {
-				lstStringName.add(classInfo.getSimpleName());
+			Class<?> targetCLass = classInfo.load();
+			if (targetCLass.getAnnotation(Domain.class) != null) {
+				lstStringName.add(targetCLass.getSimpleName());
+
+				URI targetUri = buildLinkFromDomainClass(targetCLass);
+				if (targetUri != null) {
+					lstLinks.add(Link.fromUri(targetUri).rel(targetCLass.getSimpleName()).build());
+				}
 			}
 		}
 
-		return Response.ok(lstStringName).build();
+		return Response.ok(lstStringName).links(lstLinks.toArray(new Link[] {})).build();
+	}
+
+	private URI buildLinkFromDomainClass(Class<?> domainClass) {
+		String fullClassName = domainClass.getName();
+		String rootPackage = null;
+		URI targetUri = null;
+		if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
+			rootPackage = ApplicationUtils.SINGLETON.getCustomDomainPackage();
+		} else if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getDomainPackage())) {
+			rootPackage = ApplicationUtils.SINGLETON.getDomainPackage();
+		}
+		if (rootPackage != null) {
+			targetUri = uriInfo.getBaseUriBuilder().path(GeneriqueRestService.class, "getAnyEntity")
+					.build(fullClassName.substring(rootPackage.length() + 1, fullClassName.length()).replace(".", "/"));
+		}
+		return targetUri;
 	}
 
 	// service to list all or one using param URL: id or parentId
@@ -100,7 +138,7 @@ public class GeneriqueRestService {
 
 				}
 				if (result == null || result.getTotalNbResult() == 0) {
-					return Response.status(Status.NO_CONTENT).entity(result).build();
+					return Response.noContent().build();
 				}
 
 			} else {
@@ -118,7 +156,7 @@ public class GeneriqueRestService {
 		}
 
 		if (result == null) {
-			return Response.status(Status.NO_CONTENT).entity(result).build();
+			return Response.noContent().build();
 		} else {
 			return Response.ok(result).build();
 		}

@@ -6,30 +6,28 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.ws.rs.NotSupportedException;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import fr.ippon.tlse.ApplicationConfig;
 import fr.ippon.tlse.ApplicationUtils;
 import fr.ippon.tlse.annotation.AnnotationHandler;
 import fr.ippon.tlse.annotation.Description;
@@ -37,7 +35,6 @@ import fr.ippon.tlse.annotation.Domain;
 import fr.ippon.tlse.annotation.Embended;
 import fr.ippon.tlse.dto.FieldDto;
 import fr.ippon.tlse.dto.ResourceDto;
-import fr.ippon.tlse.dto.ValueDto;
 import fr.ippon.tlse.dto.exception.ErrorCode;
 import fr.ippon.tlse.dto.exception.InvalidBeanException;
 import fr.ippon.tlse.dto.exception.JedaException;
@@ -95,93 +92,20 @@ public enum Domain2ResourceMapper {
 			res.setDescription(annoDescrip.value());
 		}
 
-		// 3 build Resource from domain value
-		try {
-			for (Object object : lstDomainValues) {
+		// FIXME
+		res.setLstDomain(ApplicationConfig.getMapper().valueToTree(lstDomainValues));
+		res.setTotalNbResult(lstDomainValues.size());
 
-				Map<String, ValueDto> indexFielInfo = new HashMap<>();
-
-				List<FieldDto> lstFieldDto = res.getLstFieldInfo();
-				List<ValueDto> lstValue = new ArrayList<>();
-				if (object != null) {
-					for (FieldDto fieldDto : lstFieldDto) {
-						Field field = object.getClass().getDeclaredField(fieldDto.getFieldName());
-						field.setAccessible(true);
-						// save index of id column
-						if (fieldDto.isId()) {
-							res.setPositionOfId(lstValue.size());
-						}
-						ValueDto vDto = buildValueDto(object, fieldDto, field);
-						indexFielInfo.put(field.getName(), vDto);
-						lstValue.add(vDto);
-					}
-				}
-				res.getLstValues().add(lstValue);
-				res.setTotalNbResult(lstValue.size());
-				// 5 finally check validation error on object
-				if (validation) {
-					Set<ConstraintViolation<Object>> setConstraintViolations = validator.validate(object);
-					for (ConstraintViolation<Object> constraintViolation : setConstraintViolations) {
-						String propPath = constraintViolation.getPropertyPath().toString();
-						ValueDto valDto = indexFielInfo.get(propPath);
-
-						// if propPath match indeFielInfo : the constraint match a field of the object .. we set the error to corresponding value position
-						if (valDto != null) {
-							valDto.setErrorCode(constraintViolation.getMessage());
-						} else {
-							res.getLstErrorCodes().add(constraintViolation.getMessage());
-						}
-					}
-				}
-
+		// finally check validation error on object
+		if (validation) {
+			Set<ConstraintViolation<Object>> setConstraintViolations = validator.validate(lstDomainValues);
+			for (ConstraintViolation<Object> constraintViolation : setConstraintViolations) {
+				res.getLstErrorCodes().add(constraintViolation.getMessage());
 			}
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			// can't happen : introspection wins
-			String msg = "BUG - this statement should never happen!";
-			log.error(msg, e);
-			throw new JedaException(ErrorCode.TO_BE_DEFINE, e);
 		}
+		//
 
 		return res;
-	}
-
-	private ValueDto buildValueDto(Object object, FieldDto fieldDto, Field field) throws IllegalAccessException {
-		ValueDto vDto = new ValueDto();
-		// Collection or Domain object are not mapped by default need @Embended
-		if (Collection.class.isAssignableFrom(field.getType())) {
-			Embended annoEmbended = field.getAnnotation(Embended.class);
-			if (annoEmbended == null || annoEmbended.value() == false) {
-				vDto.setUrlResourceMapping(field.getType().getSimpleName());
-			} else {
-				vDto.setValue(field.get(object));
-			}
-		} else if (StringUtils.startsWith(fieldDto.getJavaType(), ApplicationUtils.SINGLETON.getDomainPackage())
-				|| StringUtils.startsWith(fieldDto.getJavaType(), ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
-			Embended annoEmbended = field.getAnnotation(Embended.class);
-			if (annoEmbended == null || annoEmbended.value() == false) {
-				String id = findIdOfTargetValue(field);
-				vDto.setUrlResourceMapping(String.format("%s?id=%s", field.getType().getSimpleName(), id));
-			} else {
-				vDto.setValue(field.get(object));
-			}
-		} else if (field.getType().isEnum()) {
-			throw new NotSupportedException("Enum on Domain bean are not supported!");
-		} else if (Map.class.isAssignableFrom(field.getType())) {
-			throw new NotSupportedException("Map on Domain bean are not supported!");
-		} else if (StringUtils.startsWith(fieldDto.getJavaType(), "java.")) {
-			vDto.setValue(field.get(object));
-		} else if (StringUtils.equals(ObjectId.class.getName(), fieldDto.getJavaType())) {
-			ObjectId objId = (ObjectId) field.get(object);
-			vDto.setValue(objId);
-		} else {
-			throw new NotSupportedException(field.getType().getSimpleName() + " on Domain bean are not supported!");
-		}
-		return vDto;
-	}
-
-	private String findIdOfTargetValue(Field field) {
-		// FIXME TODO
-		return "";
 	}
 
 	private GenericAnnoHandler	genericAnnoH	= new GenericAnnoHandler();
@@ -242,6 +166,8 @@ public enum Domain2ResourceMapper {
 
 				fieldDto.setJavaType(javaType.getName());
 				fieldDto.setFieldName(field.getName());
+				fieldDto.setJsName(field.getName());
+
 				Annotation[] annotationOfField = field.getAnnotations();
 				for (Annotation annotation : annotationOfField) {
 					AnnotationHandler annoH = AnnotationManager.SINGLETON.getMapAnnoH()
@@ -250,6 +176,9 @@ public enum Domain2ResourceMapper {
 						fieldDto = annoH.handleAnnotation(annotation, fieldDto);
 					} else {
 						fieldDto = genericAnnoH.handleAnnotation(annotation, fieldDto);
+					}
+					if (JsonProperty.class.isAssignableFrom(annotation.annotationType())) {
+						fieldDto.setJsName(((JsonProperty) annotation).value());
 					}
 				}
 

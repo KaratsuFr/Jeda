@@ -9,15 +9,18 @@ angular.module('JedaApp').controller('EditCtrl', function($scope, $log, resolved
   $log.debug("EditCtrl", resolvedDomainBean);
   $scope.resource = resolvedDomainBean.data;
 
-  if ($scope.resource.lstValues[0] == undefined) {
-    $scope.$emit("label.jeda.invalid.data");
-  }
- 
-  for (var i = 0; i < $scope.resource.lstValues[0].length; i++) {
-    // format some value temporary:
-    if ($scope.resource.lstFieldInfo[i].jsType == "date") {
-      $scope.resource.lstValues[0][i].value = new Date($scope.resource.lstValues[0][i].value); // $filter('date')($scope.resource.lstValues[0][i].value,
-      // "dd/MM/yyyy");
+  if (resolvedDomainBean.status != 200) {
+    $scope.$emit("jedaError", {
+      title: "label.jeda.invalid.data",
+      message: resolvedDomainBean.status
+    });
+  } else {
+    for (var i = 0; i < $scope.resource.lstFieldInfo.length; i++) {
+      // format some value temporary:
+      if ($scope.resource.lstFieldInfo[i].jsType == "date") {
+        var fieldName = $scope.resource.lstFieldInfo[i].jsName;
+        $scope.resource.lstDomain[0][fieldName] = new Date($scope.resource.lstDomain[0][fieldName]);
+      }
     }
   }
 

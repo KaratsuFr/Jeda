@@ -26,6 +26,8 @@ public class FieldDto {
 	private List<FieldDto>		embendedType;
 
 	private String				fieldName;
+	private String				jsName;
+
 	private boolean				searchInvert		= false;
 	private boolean				searchIgnoreCase	= false;
 

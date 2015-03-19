@@ -8,8 +8,8 @@
 angular.module('JedaApp').controller('MainCtrl',
         function($scope, resolvedBaseDomainBean, $log, $location, $rootScope, $routeParams) {
 
-          $log.debug(resolvedBaseDomainBean);
+          // $log.debug(resolvedBaseDomainBean);
           $scope.listBean = resolvedBaseDomainBean.data;
-          $log.debug(resolvedBaseDomainBean);
+          $scope.grabLinkHeader(resolvedBaseDomainBean.headers);
 
         });

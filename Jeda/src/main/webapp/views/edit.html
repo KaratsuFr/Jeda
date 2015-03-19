@@ -9,7 +9,7 @@
 			translate="{{fieldInfo.label}}"></label> <input
 			type="{{fieldInfo.jsType}}"
 			ng-class="fieldInfo.jsType != 'checkbox' ? 'form-control' :'' "
-			ng-model="resource.lstValues[0][$index].value"></input>
+			ng-model="resource.lstDomain[0][fieldInfo.jsName]"></input>
 	</div>
 	<button type="button"
 		class="btn btn-default" translate="label.jeda.back" ng-click="back()"></button>
@@ -18,4 +18,4 @@
 		class="btn btn-default" translate="label.jeda.update" ng-click="createOrUpdate(resource)"></button>
 
 </form>
-{{resource.lstValues[0]}}
+{{resource}}

@@ -1,36 +1,14 @@
 <p>This is the search & list view for {{$root.currBean}}</p>
 
 <table
-	ng-table="tableParams"
-	class="table">
-	<thead>
-		<tr>
-			<th
-				ng-repeat="fieldInfo in resource.lstFieldInfo"
-				class="sortable"
-				filter="{ fieldInfo.label : fieldInfo.jsType}"
-				ng-class="{
-                    'sort-asc': tableParams.isSortBy(fieldInfo.label, 'asc'),
-                    'sort-desc': tableParams.isSortBy(fieldInfo.label, 'desc')
-                  }"
-				ng-click="tableParams.sorting(fieldInfo.label, tableParams.isSortBy(fieldInfo.label, 'asc') ? 'desc' : 'asc')">
-				<div>{{fieldInfo.label}}</div>
-			</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr
-			ng-repeat="values in $data"
-			style="cursor: pointer"
-			ng-click="viewBean(values[resource.positionOfId].value)">
-			<td
-				ng-repeat="valueDto in values track by $index"
-				sortable="{{resource.lstFieldInfo[$index].label}}">{{valueDto.value}}</td>
-		</tr>
-	</tbody>
-
-
+	ng-table-dynamic="tableParams with cols"
+	show-filter="true"
+	class="table table-bordered table-striped">
+	<tr ng-repeat="value in $data">
+		<td ng-repeat="col in $columns">{{value[col.field]}}</td>
+	</tr>
 </table>
+
 <button
 	class="btn btn-default"
 	translate="label.jeda.back"
