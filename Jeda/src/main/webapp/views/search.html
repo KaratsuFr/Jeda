@@ -5,7 +5,7 @@
 	show-filter="true"
 	class="table table-bordered table-striped">
 	<tr ng-repeat="value in $data">
-		<td ng-repeat="col in $columns">{{value[col.field]}}</td>
+		<td ng-repeat="col in $columns" ng-click="viewBean(value['_id'])">{{value[col.field]}}</td>
 	</tr>
 </table>
 

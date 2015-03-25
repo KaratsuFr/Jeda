@@ -13,6 +13,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import fr.ippon.tlse.ApplicationContextUtils;
 import fr.ippon.tlse.domain.TuBasicDomain;
 import fr.ippon.tlse.domain.sub1.TuBasicSub1Domain;
 
@@ -22,7 +23,7 @@ public class GeneriqueRestServiceTest {
 
 	@BeforeClass
 	public void init() throws URISyntaxException {
-		respService.setUriInfo(new ResteasyUriInfo(new URI("http://localhost:9999/test")));
+		ApplicationContextUtils.SINGLETON.setUriInfo(new ResteasyUriInfo(new URI("http://localhost:9999/test")));
 	}
 
 	@Test

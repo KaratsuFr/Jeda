@@ -12,6 +12,7 @@ import fr.ippon.tlse.dto.exception.GlobalRestExceptionMapper;
 import fr.ippon.tlse.dto.exception.JedaRestExceptionMapper;
 import fr.ippon.tlse.filter.PostRequestFilter;
 import fr.ippon.tlse.filter.PreRequestFilter;
+import fr.ippon.tlse.json.JacksonConfig;
 import fr.ippon.tlse.rest.GeneriqueRestService;
 
 public class ApplicationConfig extends Application {

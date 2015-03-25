@@ -39,7 +39,5 @@ public class ResourceDto {
 		lstDomain = node;
 	}
 
-	// private List<List<ValueDto>> lstValues = new ArrayList<>();
-
 	private List<String>	lstErrorCodes	= new ArrayList<>();
 }

@@ -47,9 +47,11 @@ public class GeneriqueBusiness<T> implements IBusinessService<T> {
 		// List<T> lstDomainObj = Resource2DomainMapper.SINGLETON.buildLstDomainFromResource(resource, domainClass);
 
 		IPersistenceManager<T> dao = ApplicationUtils.SINGLETON.getPersistenceServiceForClass(domainClass);
-		for (T object : lstDomainObj) {
-			dao.saveOrUpdate(object);
-		}
+		lstDomainObj.forEach(obj -> dao.saveOrUpdate(obj));
+		// TODO REMOVE
+		// for (T object : lstDomainObj) {
+		// dao.saveOrUpdate(object);
+		// }
 		return lstDomainObj;
 
 		// return Domain2ResourceMapper.SINGLETON.buildResourceFromDomain(lstDomainObj, domainClass);

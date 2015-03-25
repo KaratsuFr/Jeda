@@ -17,7 +17,7 @@ public class FieldDto {
 	private boolean				displayCrud			= true;
 	private boolean				displaySearch		= true;
 	private boolean				displayList			= true;
-
+	private boolean				isLink				= false;
 	private String				label;
 	private String				description;
 	private String				javaType;

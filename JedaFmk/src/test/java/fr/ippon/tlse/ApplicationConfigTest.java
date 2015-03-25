@@ -2,6 +2,7 @@ package fr.ippon.tlse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -40,8 +41,9 @@ public class ApplicationConfigTest extends ApplicationConfig {
 	private void generateFullDomOnMongo(IPersistenceManager<Object> pers) {
 		DomainWithAllType fullDom = new DomainWithAllType();
 		fullDom.setBool(Boolean.TRUE);
-		// fullDom.setCollDomain(Arrays.asList(new TuBasicDomain[] { new TuBasicDomain("sds dfs fd", 1),
-		// new TuBasicDomain("sds mm mmmfd", 2) }));
+
+		fullDom.setCollDomain(Arrays.asList(new TuBasicDomain[] { new TuBasicDomain("sds dfs fd", 1),
+				new TuBasicDomain("sds mm mmmfd", 2) }));
 
 		fullDom.setOneByte(Byte.MAX_VALUE);
 		fullDom.setOneChar('h');
@@ -49,6 +51,7 @@ public class ApplicationConfigTest extends ApplicationConfig {
 		fullDom.setOneFloat(09876.456f);
 		fullDom.setOneInt(687);
 		fullDom.setOneLong(Long.MAX_VALUE);
+
 		fullDom.setOneShort((short) 1000);
 		fullDom.setOptionnalObj(Optional.of("testXD"));
 		fullDom.setPrimitiveBool(true);

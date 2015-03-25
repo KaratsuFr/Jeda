@@ -1,13 +1,20 @@
 package fr.ippon.tlse;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -128,4 +135,37 @@ public enum ApplicationUtils {
 		}
 		return targetDomainClass;
 	}
+
+	public Link buildLinkFromDomainClass(Class<?> domainClass) {
+		return buildLinkFromDomainClass(domainClass, Optional.empty());
+	}
+
+	public Link buildLinkFromDomainClass(Class<?> domainClass, Optional<String> id) {
+		if (ApplicationContextUtils.SINGLETON.getUriInfo() == null) {
+			return null;
+		}
+		String fullClassName = domainClass.getName();
+		String rootPackage = null;
+		URI targetUri = null;
+		if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
+			rootPackage = ApplicationUtils.SINGLETON.getCustomDomainPackage();
+		} else if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getDomainPackage())) {
+			rootPackage = ApplicationUtils.SINGLETON.getDomainPackage();
+		}
+
+		if (rootPackage != null) {
+			UriBuilder uriBuilder = ApplicationContextUtils.SINGLETON
+					.getUriInfo()
+					.getBaseUriBuilder()
+					.path("/entity/"
+							+ fullClassName.substring(rootPackage.length() + 1, fullClassName.length()).replace(".",
+									"/"));
+			if (id.isPresent()) {
+				uriBuilder.queryParam("id", id.get());
+			}
+			targetUri = uriBuilder.build();
+		}
+		return Link.fromUri(targetUri).rel(domainClass.getSimpleName()).build();
+	}
+
 }

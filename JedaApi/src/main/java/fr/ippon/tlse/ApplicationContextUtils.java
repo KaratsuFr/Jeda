@@ -3,12 +3,13 @@ package fr.ippon.tlse;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 
+import lombok.Getter;
 import lombok.Setter;
 import fr.ippon.tlse.rest.StandardUrlParameters;
 
@@ -18,6 +19,10 @@ public enum ApplicationContextUtils {
 
 	@Setter
 	private static int											defaultLimit	= 100;
+
+	@Getter
+	@Setter
+	private UriInfo												uriInfo;
 
 	private final ThreadLocal<MultivaluedMap<String, String>>	currContext		= new ThreadLocal<MultivaluedMap<String, String>>()
 																				{
@@ -41,9 +46,7 @@ public enum ApplicationContextUtils {
 	}
 
 	public Map<String, String> getParameters() {
-		Set<Entry<String, List<String>>> entryParams = getQueryParam().entrySet();
-
-		return entryParams.stream().filter(entry -> !StandardUrlParameters.validParam(entry.getKey()))
+		return getQueryParam().entrySet().stream().filter(entry -> !StandardUrlParameters.validParam(entry.getKey()))
 				.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().get(0)));
 	}
 

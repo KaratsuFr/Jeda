@@ -1,4 +1,4 @@
-package fr.ippon.tlse;
+package fr.ippon.tlse.json;
 
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;

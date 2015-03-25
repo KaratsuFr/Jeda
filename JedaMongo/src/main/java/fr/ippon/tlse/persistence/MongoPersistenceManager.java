@@ -48,14 +48,13 @@ public class MongoPersistenceManager<T> implements IPersistenceManager<T> {
 		if (database == null) {
 			database = new MongoClient(host, port).getDB(databaseName);
 		}
-
 		Builder tmpMapper = new JacksonMapper.Builder();
 		for (Module module : ObjectMapper.findModules()) {
 			tmpMapper.registerModule(module);
 		}
 		tmpMapper.enable(MapperFeature.AUTO_DETECT_GETTERS);
-
 		tmpMapper.registerModule(new JSR310Module()).registerModule(new Jdk8Module());
+
 		jongo = new Jongo(database, tmpMapper.build());
 		return this;
 	}

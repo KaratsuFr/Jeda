@@ -4,7 +4,7 @@
 	<artifactId>JedaFmk</artifactId>
 	<description>Internal framework of Jeda</description>
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
@@ -20,7 +20,7 @@
 			<artifactId>javax.el</artifactId>
 			<version>2.2.4</version>
 		</dependency>
-	
+
 
 		<dependency>
 			<groupId>io.undertow</groupId>
@@ -43,16 +43,36 @@
 			<scope>test</scope>
 		</dependency>
 
+		
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jdk8</artifactId>
-			<version>2.4.3</version>
+			<artifactId>jackson-datatype-guava</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>2.4.0</version>
+			<artifactId>jackson-datatype-json-org</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 
 		<dependency>
@@ -65,7 +85,7 @@
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jackson2-provider</artifactId>
-			<version>${resteasy.version}</version>
+			<version>${resteasy.version}</version>			
 		</dependency>
 
 		<dependency>
@@ -114,23 +134,10 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
+	<!-- <build> <plugins> <plugin> <artifactId>maven-compiler-plugin</artifactId> 
+		<version>3.2</version> <configuration> <source>1.8</source> <target>1.8</target> 
+		</configuration> </plugin> </plugins> </build> -->
 
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.2</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	<properties>
-		<resteasy.version>3.0.10.Final</resteasy.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<parent>
 		<groupId>fr.ippon.tlse</groupId>
 		<artifactId>JedaParent</artifactId>

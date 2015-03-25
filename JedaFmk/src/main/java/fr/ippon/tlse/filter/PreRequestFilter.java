@@ -14,6 +14,7 @@ public class PreRequestFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		ApplicationContextUtils.SINGLETON.getQueryParam().putAll(requestContext.getUriInfo().getQueryParameters());
+		ApplicationContextUtils.SINGLETON.setUriInfo(requestContext.getUriInfo());
 		ApplicationContextUtils.SINGLETON.setCurrRestPath(requestContext.getUriInfo().getPath().toString());
 
 	}

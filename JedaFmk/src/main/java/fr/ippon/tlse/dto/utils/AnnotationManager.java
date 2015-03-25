@@ -28,15 +28,21 @@ public class AnnotationManager {
 
 		ImmutableSet<ClassInfo> lstClassAnntation = ApplicationUtils.SINGLETON.getClassP().getTopLevelClassesRecursive(
 				ApplicationUtils.SINGLETON.getBasePackage());
-		try {
-			for (ClassInfo classInfo : lstClassAnntation) {
-				AnnotationTypeHandler annoTypeH = classInfo.load().getAnnotation(AnnotationTypeHandler.class);
-				if (annoTypeH != null) {
-					mapAnnoH.put(annoTypeH.annoClass(), ((AnnotationHandler) classInfo.load().newInstance()));
-				} else {
-					// generic anno handler
 
-				}
+		lstClassAnntation.forEach(classInfo ->
+		// for (ClassInfo classInfo : lstClassAnntation) {
+				extractAnnotation(classInfo));
+		// }
+
+	}
+
+	private void extractAnnotation(ClassInfo classInfo) {
+		try {
+			AnnotationTypeHandler annoTypeH = classInfo.load().getAnnotation(AnnotationTypeHandler.class);
+			if (annoTypeH != null) {
+				mapAnnoH.put(annoTypeH.annoClass(), ((AnnotationHandler) classInfo.load().newInstance()));
+			} else {
+				// generic anno handler
 			}
 		} catch (ClassCastException | InstantiationException | IllegalAccessException e) {
 			String msg = "Init failed due to Invalid Annotation Hander - class must implement "
@@ -45,4 +51,5 @@ public class AnnotationManager {
 			throw new JedaException(ErrorCode.TO_BE_DEFINE, msg);
 		}
 	}
+
 }

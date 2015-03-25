@@ -15,6 +15,7 @@ public class PostRequestFilter implements ContainerResponseFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
 			throws IOException {
+		ApplicationContextUtils.SINGLETON.setUriInfo(null);
 		ApplicationContextUtils.SINGLETON.getQueryParam().clear();
 		ApplicationContextUtils.SINGLETON.setCurrRestPath("");
 	}

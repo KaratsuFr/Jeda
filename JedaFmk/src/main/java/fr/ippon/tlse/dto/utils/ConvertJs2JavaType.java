@@ -1,15 +1,20 @@
 package fr.ippon.tlse.dto.utils;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.Getter;
 
 public enum ConvertJs2JavaType {
 
 	TEXT(String.class, "text"), BOOL(Boolean.class, "checkbox"), DATE(java.util.Date.class, "date"), NUMBER(
-			Number.class, "number");
+			Number.class, "number"), LINK(URI.class, "link");
 
+	@Getter
 	private Class<?>						javaClass;
 
+	@Getter
 	private String							jsType;
 
 	private static boolean					isMapInit	= false;
@@ -38,12 +43,12 @@ public enum ConvertJs2JavaType {
 		if (Number.class.isAssignableFrom(searchClass)) {
 			searchClass = Number.class;
 		}
-		return mapJavaToJs.get(searchClass);
+		String jsType = mapJavaToJs.get(searchClass);
+		// SET DEFAULT TYPE TO TEXT
+		if (jsType == null) {
+			jsType = TEXT.jsType;
+		}
+		return jsType;
 	}
-
-	// public static Class<?> getJavaTypeFromJsType(String jsType) {
-	// initMapConvert();
-	// return mapJsToJava.get(jsType);
-	// }
 
 }
