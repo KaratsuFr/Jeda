@@ -6,7 +6,7 @@
  * @description # EditCtrl Controller of the JedaApp
  */
 angular.module('JedaApp').controller('EditCtrl', function($scope, $log, resolvedDomainBean, $filter) {
-  $log.debug("EditCtrl", resolvedDomainBean);
+  //$log.debug("EditCtrl", resolvedDomainBean);
   $scope.resource = resolvedDomainBean.data;
 
   if (resolvedDomainBean.status != 200) {

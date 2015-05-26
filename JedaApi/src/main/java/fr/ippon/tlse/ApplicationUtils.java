@@ -144,28 +144,29 @@ public enum ApplicationUtils {
 		if (ApplicationContextUtils.SINGLETON.getUriInfo() == null) {
 			return null;
 		}
-		String fullClassName = domainClass.getName();
-		String rootPackage = null;
-		URI targetUri = null;
-		if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
-			rootPackage = ApplicationUtils.SINGLETON.getCustomDomainPackage();
-		} else if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getDomainPackage())) {
-			rootPackage = ApplicationUtils.SINGLETON.getDomainPackage();
-		}
+		String pathToDomaine = buildPathToDomainClass(domainClass);
 
-		if (rootPackage != null) {
-			UriBuilder uriBuilder = ApplicationContextUtils.SINGLETON
-					.getUriInfo()
-					.getBaseUriBuilder()
-					.path("/entity/"
-							+ fullClassName.substring(rootPackage.length() + 1, fullClassName.length()).replace(".",
-									"/"));
+		URI targetUri = null;
+		if (pathToDomaine != null) {
+			UriBuilder uriBuilder = ApplicationContextUtils.SINGLETON.getUriInfo().getBaseUriBuilder()
+					.path("/entity/" + pathToDomaine);
 			if (id.isPresent()) {
 				uriBuilder.queryParam("id", id.get());
 			}
 			targetUri = uriBuilder.build();
 		}
 		return Link.fromUri(targetUri).rel(domainClass.getSimpleName()).build();
+	}
+
+	public String buildPathToDomainClass(Class<?> domainClass) {
+		String fullClassName = domainClass.getName();
+		String rootPackage = null;
+		if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getCustomDomainPackage())) {
+			rootPackage = ApplicationUtils.SINGLETON.getCustomDomainPackage();
+		} else if (StringUtils.startsWith(fullClassName, ApplicationUtils.SINGLETON.getDomainPackage())) {
+			rootPackage = ApplicationUtils.SINGLETON.getDomainPackage();
+		}
+		return fullClassName.substring(rootPackage.length() + 1, fullClassName.length()).replace(".", "/");
 	}
 
 }

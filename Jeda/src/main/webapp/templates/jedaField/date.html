@@ -1,0 +1,14 @@
+
+<div
+	class='form-group'
+	ng-class='{'has-error': datepickerForm.date.$invalid}'>
+	<i class='glyphicon glyphicon-calendar'></i>
+	<label
+		class='control-label'
+		translate='{{fieldInfo.label}}'> </label> <input
+		class='form-control'
+		ng-model='model'
+		name='{{fieldInfo.jsName}}'
+		bs-datepicker
+		type='text'>
+</div>

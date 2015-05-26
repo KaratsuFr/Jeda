@@ -8,13 +8,10 @@
 	<div
 		class="form-group"
 		ng-repeat="fieldInfo in resource.lstFieldInfo track by $index">
-		<label
-			class="control-label"
-			translate="{{fieldInfo.label}}"></label> <input
-			type="{{fieldInfo.jsType}}"
-			ng-readonly="fieldInfo.jsName == '_id'"
-			ng-class="fieldInfo.jsType != 'checkbox' ? 'form-control' :'' "
-			ng-model="resource.lstDomain[0][fieldInfo.jsName]"></input>
+		<jd-field
+			jd-type="{{fieldInfo.jsType}}"
+			jd-info="fieldInfo"
+			jd-model="resource.lstDomain[0][fieldInfo.jsName]"></jd-field>
 	</div>
 	<button
 		type="button"

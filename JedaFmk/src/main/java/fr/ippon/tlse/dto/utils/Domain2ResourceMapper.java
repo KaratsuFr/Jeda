@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.validation.ConstraintViolation;
@@ -100,50 +98,12 @@ public enum Domain2ResourceMapper {
 			res.setDescription(annoDescrip.value());
 		}
 
-		// FIXME
-		// Set<String> lstPropertiesNotSerialized = res.getLstFieldInfo().stream()
-		// .filter(f -> ConvertJs2JavaType.LINK.getJsType().equals(f.getJsType())).map(FieldDto::getJsName)
-		// .collect(Collectors.toSet());
-
 		ArrayNode jsonDomainNode = ApplicationConfig.getMapper().valueToTree(lstDomainValues);
 		// replace comlexe type not embended by links
 		try {
 			for (FieldDto field : res.getLstFieldInfo()) {
 				if (field.isLink()) {
-					for (int i = 0; i < jsonDomainNode.size(); i++) {
-						ObjectNode masterNode = (ObjectNode) jsonDomainNode.get(i);
-						for (Iterator<Entry<String, JsonNode>> nodeElements = masterNode.fields(); nodeElements
-								.hasNext();) {
-							Entry<String, JsonNode> entry = nodeElements.next();
-							if (entry.getKey().equals(field.getJsName())) {
-								JsonNode node = entry.getValue();
-
-								// JsonNode node = jsonDomainNode.findValue(field.getJsName());
-
-								if (!node.isNull()) {
-									if (ObjectNode.class.isAssignableFrom(node.getClass())) {
-										ObjectNode objNode = (ObjectNode) node;
-										// add _id
-										Link link = ApplicationUtils.SINGLETON.buildLinkFromDomainClass(
-												Class.forName(field.getJavaType()),
-												Optional.of(objNode.get("_id").asText()));
-										if (link != null) {
-											entry.setValue(buildNodeFromLink("", link));
-										}
-									} else if (ArrayNode.class.isAssignableFrom(node.getClass())) {
-										Link link = ApplicationUtils.SINGLETON.buildLinkFromDomainClass(Class
-												.forName(field.getJavaType()));
-
-										if (link != null) {
-											entry.setValue(buildNodeFromLink(".List", link));
-										}
-									}
-								}
-							}
-
-						}
-					}
-
+					buildLink(jsonDomainNode, field);
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -163,23 +123,56 @@ public enum Domain2ResourceMapper {
 		return res;
 	}
 
-	private JsonNode buildNodeFromLink(String suffix, Link... link) {
-		List<Link> lstLink = Arrays.asList(link);
+	private void buildLink(ArrayNode jsonDomainNode, FieldDto field) throws ClassNotFoundException {
+		for (int i = 0; i < jsonDomainNode.size(); i++) {
+			ObjectNode masterNode = (ObjectNode) jsonDomainNode.get(i);
+			for (Iterator<Entry<String, JsonNode>> nodeElements = masterNode.fields(); nodeElements.hasNext();) {
+				Entry<String, JsonNode> entry = nodeElements.next();
+				if (entry.getKey().equals(field.getJsName())) {
+					JsonNode node = entry.getValue();
+
+					// JsonNode node = jsonDomainNode.findValue(field.getJsName());
+
+					if (!node.isNull()) {
+						if (ObjectNode.class.isAssignableFrom(node.getClass())) {
+							ObjectNode objNode = (ObjectNode) node;
+							entry.setValue(buildNodeFromLink(LinkType.EDIT, Optional.of(objNode), field));
+						} else if (ArrayNode.class.isAssignableFrom(node.getClass())) {
+							entry.setValue(buildNodeFromLink(LinkType.LIST, Optional.empty(), field));
+						}
+					}
+				}
+
+			}
+		}
+	}
+
+	private JsonNode buildNodeFromLink(LinkType linkType, Optional<ObjectNode> objNode, FieldDto field)
+			throws ClassNotFoundException {
+
 		ObjectNode nodeLinks = ApplicationConfig.getMapper().createObjectNode();
 		ArrayNode nodeArrayLink = ApplicationConfig.getMapper().createArrayNode();
 		nodeLinks.set("links", nodeArrayLink);
-		lstLink.forEach(new Consumer<Link>()
-		{
+		Class<?> domainClass = Class.forName(field.getJavaType());
+		ObjectNode oneLink = ApplicationConfig.getMapper().createObjectNode();
+		Link l = null;
+		String id = null;
+		if (objNode.isPresent()) {
+			id = objNode.get().get("_id").asText();
+			l = ApplicationUtils.SINGLETON.buildLinkFromDomainClass(domainClass, Optional.of(id));
+		} else {
+			l = ApplicationUtils.SINGLETON.buildLinkFromDomainClass(domainClass, Optional.empty());
+		}
 
-			@Override
-			public void accept(Link l) {
-				ObjectNode oneLink = ApplicationConfig.getMapper().createObjectNode();
-				oneLink.put("rel", l.getRel() + suffix);
-				oneLink.put("href", l.getUri().toString());
-				nodeArrayLink.add(oneLink);
-			}
-		});
-
+		if (l != null) {
+			oneLink.put("rel", l.getRel() + linkType.getRelSuffix());
+			oneLink.put("href", l.getUri().toString());
+			oneLink.put(
+					"uri",
+					String.format(linkType.getUriPattern(),
+							ApplicationUtils.SINGLETON.buildPathToDomainClass(domainClass), id));
+			nodeArrayLink.add(oneLink);
+		}
 		return nodeLinks;
 	}
 
@@ -231,6 +224,7 @@ public enum Domain2ResourceMapper {
 				} else if (Collection.class.isAssignableFrom(field.getType())) {
 					if (!updateEmbendedType(field, fieldDto)) {
 						fieldDto.setLink(true);
+						fieldDto.setDisplayList(false);
 					}
 					Type type = field.getGenericType();
 					if (type instanceof ParameterizedType) {
@@ -248,6 +242,8 @@ public enum Domain2ResourceMapper {
 					javaType = field.getType();
 					if (!updateEmbendedType(field, fieldDto)) {
 						fieldDto.setLink(true);
+						fieldDto.setDisplayList(false);
+
 					}
 				} else {
 					javaType = field.getType();

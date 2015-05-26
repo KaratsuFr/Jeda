@@ -38,7 +38,7 @@ angular.module('JedaApp').controller(
               titleAlt: fieldInfo.description,
               sortable: fieldInfo.jsName,
               filter: {},
-              show: fieldInfo.displaySearch,
+              show: fieldInfo.displayList,
               field: fieldInfo.jsName
             };
             col.filter[fieldInfo.jsName] = 'text';

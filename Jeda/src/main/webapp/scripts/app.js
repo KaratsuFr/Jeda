@@ -74,7 +74,7 @@ angular.module(
           tmhDynamicLocale.set($translate.use());
 
           $rootScope.goToListForBean = function(beanName) {
-            $location.path('/' + beanName + '/search');
+            $location.url('/' + beanName + '/search');
           };
 
           /*
@@ -107,14 +107,15 @@ angular.module(
           };
 
           $rootScope.viewBean = function(beanId) {
-            $location.path('/' + $routeParams.beanName + '/edit').search({
+            $location.url('/' + $routeParams.beanName + '/edit').search({
               id: beanId
             });
           };
 
           $rootScope.back = function() {
             // suppress param
-            $location.url($location.path());
+            // $location.url($location.path());
+
             if ($rootScope.tabBreadcrumb.length <= 2) {
               var targetDest = '/';
             } else {
@@ -123,11 +124,11 @@ angular.module(
               targetDest = targetDest.substring(1, targetDest.length);
             }
             // $log.debug("back go to:", targetDest, $rootScope.tabBreadcrumb);
-            $location.path(targetDest).reload();
+            $location.url(targetDest);
           }
 
           $rootScope.createBean = function() {
-            $location.path('/' + $routeParams.beanName + '/edit').search({
+            $location.url('/' + $routeParams.beanName + '/edit').search({
               create: ''
             });
           };
@@ -199,8 +200,10 @@ angular.module(
           });
 
           $rootScope.$on("jedaError", function(event, infos) {
-            $log.debug("jedaError",infos);
-            growl.error("" + infos.message, {title: infos.title});
+            $log.debug("jedaError", infos);
+            growl.error("" + infos.message, {
+              title: infos.title
+            });
           });
 
           $rootScope.$on("$routeChangeError", function(event, current, previous, rejection) {

@@ -1,0 +1,18 @@
+<label
+	class="control-label"
+	translate="{{fieldInfo.label}}"></label>
+<!-- 
+<div
+	class="row"
+	ng-repeat="link in model.links">
+	<a
+		ng-href="#{{link.uri}}"
+		ng-click="goToUrl(link.uri)">{{'label.jeda.viewDomain' | translate}} : {{link.rel | translate}} </a>
+</div>
+ -->
+<ul class="list-group">
+	<li
+		ng-repeat="link in model.links"
+		class="text-center list-group-item"
+		ng-click="goToUrl(link.uri)">{{'label.jeda.viewDomain' | translate}} : {{link.rel | translate}}</li>
+</ul>
